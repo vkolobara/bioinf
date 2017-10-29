@@ -10,3 +10,5 @@
 
 1. Implementirati sparse k-mer graph (Sparc: a sparsity-based consensus algorithm for long erroneous sequencing reads (http://tinyurl.com/zqjcd9q).)
 2. Implementirati konsenzus modul pomoću 1. dijela.
+
+## [Testni podatci](https://www.dropbox.com/s/a40dhhfchojyf0c/consenus_input.zip?dl=0)
