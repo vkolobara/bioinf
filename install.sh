@@ -1,10 +1,11 @@
 #!/bin/bash
 
 ########################## DOWNLOAD AND UNZIP DATA #############################
-if [[ $(ls data | wc -l) == 6 ]]; then
+if [[ $(ls data | wc -l) -ge 6 ]]; then
 	echo "---------- Skip download data ----------"
 else
 	echo "---------- Download data ----------"
+	mkdir data
 	cd data
 	wget https://www.dropbox.com/s/a40dhhfchojyf0c/consenus_input.zip
 	unzip consenus_input.zip 
@@ -14,13 +15,7 @@ fi
 ################################################################################
 
 ########################## BUILD LIBRARIES #####################################
-if [[ -d "libs" ]]; then
-	echo "---------- Skip creating libs ----------"
-else
-	echo "---------- Create libs folder ----------"
-	mkdir libs
-fi
-
+mkdir libs
 cd libs
 
 if [[ -d "minimap" ]]; then
