@@ -12,10 +12,11 @@ else
 	else
 		INSTANCE=$1
 		MAPPER=$2
+		echo $MAPPER
 	fi
 fi
 
-if [[ $MAPPER -eq "graphmap" ]]; then
+if [[ "$MAPPER" == "graphmap" ]]; then
 	libs/graphmap/bin/Linux-x64/graphmap align -r data/"$INSTANCE"_layout.fasta -d data/"$INSTANCE"_reads.fastq -o data/"$INSTANCE"_mapping.sam
 	# TODO: CONVERT .sam to .paf
 else
