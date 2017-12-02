@@ -20,3 +20,4 @@ if [[ $MAPPER -eq "graphmap" ]]; then
 	# TODO: CONVERT .sam to .paf
 else
 	libs/minimap/minimap data/"$INSTANCE"_layout.fasta data/"$INSTANCE"_reads.fastq > data/"$INSTANCE"_mapping.paf
+fi
