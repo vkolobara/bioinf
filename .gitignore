@@ -36,3 +36,5 @@
 libs
 data
 
+.idea
+cmake-build-debug
