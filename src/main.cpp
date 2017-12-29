@@ -7,26 +7,30 @@
 #include "format/PAF.h"
 #include "format/FASTA.h"
 #include "format/FASTQ.h"
+#include "algorithm/KMerGraph.h"
 
 int main(int argc, char *argv[]) {
-    PAF paf("../data/lambda_mapping.paf");
-
-    for (auto row : paf.getRows()) {
-        cout << row.write() << endl;
-    }
-
-    cout << endl << endl;
-
     FASTA fasta("../data/lambda_layout.fasta");
 
-    cout << fasta.getSequence() << endl;
+    KMerGraph graph(2,3);
 
-    cout << endl << endl;
+    // graph.initialGraph("ACTGGACTAAA");
 
-    FASTQ fastq("../data/lambda_reads.fastq");
+    graph.initialGraph(fasta.getSequence());
+    auto root = graph.getRoot();
 
-    for (auto row : fastq.getReadings()) {
-        cout << row.write() << endl;
+
+    while(root) {
+        cout << "(" << root->position << "," << root->kmer << ")";
+
+        if (!root->edges.empty()) {
+            cout << " [" << root->edges[0]->edge << "]" << endl;
+            root = root->edges[0]->next;
+        } else {
+            break;
+        }
+
     }
+
 
 }
