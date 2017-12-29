@@ -3,7 +3,14 @@
 //
 
 #include <iostream>
+#include "format/Format.h"
+#include "format/PAF.h"
 
 int main(int argc, char *argv[]) {
-    std::cout << "BIOINFORMATIKA JE ZAKON!" << std::endl;
+    PAF paf("../data/lambda_mapping.paf");
+
+    for (auto row : paf.getRows()) {
+        cout << row.write() << endl;
+    }
+
 }
