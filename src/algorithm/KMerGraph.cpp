@@ -45,7 +45,7 @@ void KMerGraph::initialGraph(string backbone) {
 
         unique_ptr<Vertex> v(new Vertex(position, kmer));
 
-        if (!edges.empty()) {
+        if (edgePtr) {
             edgePtr->next = v.get();
         }
 
