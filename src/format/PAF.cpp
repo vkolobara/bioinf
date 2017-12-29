@@ -39,7 +39,7 @@ void PAF::read(string path) {
 
     while(getline(file, line)) {
         if (line.empty()) break;
-        rows.push_back(PAFRow(line));
+        rows.emplace_back(line);
     }
 
     file.close();

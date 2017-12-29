@@ -7,23 +7,28 @@
 
 #include "Format.h"
 
+struct Reading {
+    string name;
+    string sequence;
+    string quality;
+
+    explicit Reading(vector<string> line);
+    void read(vector<string> line);
+    string write();
+};
+
 class FASTQ : public Format {
 private:
-    vector<string> names;
-    vector<string> sequences;
-    vector<string> qualities;
+    vector<Reading> readings;
+public:
+    const vector<Reading> &getReadings() const;
+
 public:
     explicit FASTQ(std::string path);
     void read(string path) override;
     void write(string path) override;
 
-    const vector<string> &getNames() const;
-
-    const vector<string> &getSequences() const;
-
-    const vector<string> &getQualities() const;
 };
-
 
 
 #endif //BIOINF_FASTQ_H
