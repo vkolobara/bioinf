@@ -19,7 +19,8 @@ int main(int argc, char *argv[]) {
 
     graph.initialGraph(fasta.getSequence());
     auto root = graph.getRoot();
-    graph.getOptimalGenome();
+    fasta.sequence = graph.getOptimalGenome();
+    fasta.write("../data/lambda_our_output.fasta");
 
     while(root) {
         cout << "(" << root->position << "," << root->kmer << ")";

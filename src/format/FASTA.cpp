@@ -28,7 +28,7 @@ void FASTA::write(std::string path) {
     ofstream file(path);
 
     file << ">" << name << endl;
-    file << sequence;
+    file << sequence << "\n";
 
     file.close();
 }
@@ -44,4 +44,5 @@ const string &FASTA::getName() const {
 const string &FASTA::getSequence() const {
     return sequence;
 }
+
 

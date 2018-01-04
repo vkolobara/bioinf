@@ -19,7 +19,7 @@ struct Vertex {
     string kmer;
     vector<Edge*> edges;
     int weight;
-    int bestEdgeIndex;
+    Edge* bestEdge;
 
     Vertex(int position, const string &kmer);
 
@@ -48,6 +48,7 @@ private:
     Vertex* root;
     set<unique_ptr<Vertex>> vertices;
     set<unique_ptr<Edge>> edges;
+    void calculateLongestPath();
 public:
     KMerGraph(int k, int g);
 

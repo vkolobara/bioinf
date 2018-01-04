@@ -79,9 +79,7 @@ Vertex* KMerGraph::getRoot() {
     return root;
 }
 
-
-// Dijkstra for max weighted path
-string KMerGraph::getOptimalGenome() {
+void KMerGraph::calculateLongestPath() {
     root->weight = 0;
 
     queue<Vertex*> queue;
@@ -101,11 +99,25 @@ string KMerGraph::getOptimalGenome() {
             if (edge->next->weight == INT32_MIN) {
                 queue.push(edge->next);
             }
+            
             if (edge->next->weight < currentVertex->weight + edge->quality) {
                 edge->next->weight = currentVertex->weight + edge->quality;
+                currentVertex->bestEdge = edge;
             }
         }
     }
+}
 
-    return "";
+string KMerGraph::getOptimalGenome() {
+    calculateLongestPath();
+    Vertex* vertex = root;
+
+    string genome = root->kmer;
+
+    while (vertex->bestEdge != NULL) {
+        genome += vertex->bestEdge->edge;
+        vertex = vertex->bestEdge->next;
+    }
+
+    return genome;
 }

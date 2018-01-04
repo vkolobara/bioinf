@@ -10,8 +10,8 @@
 class FASTA : public Format {
 private:
     std::string name;
-    std::string sequence;
 public:
+    std::string sequence;
     explicit FASTA(std::string path);
     void read(std::string path) override;
     void write(std::string path) override;
