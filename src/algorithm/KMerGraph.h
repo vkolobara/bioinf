@@ -18,6 +18,8 @@ struct Vertex {
     int position;
     string kmer;
     vector<Edge*> edges;
+    int weight;
+    int bestEdgeIndex;
 
     Vertex(int position, const string &kmer);
 
@@ -52,6 +54,8 @@ public:
     void initialGraph(string backbone);
 
     Vertex* getRoot();
+
+    string getOptimalGenome();
 
 };
 

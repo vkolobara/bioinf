@@ -1,7 +1,7 @@
 #!/bin/bash
 
 INSTANCE="lambda"
-MAPPER="graphmap"
+MAPPER="minimap"
 
 if [[ $# -eq 0 ]]; then
 	echo "No parameters specified, using lambda with graphmap"
