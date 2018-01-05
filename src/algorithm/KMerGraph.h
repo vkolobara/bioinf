@@ -27,6 +27,8 @@ struct Vertex {
 
     void addEdge(unique_ptr<Edge> edge);
 
+    bool containsEdge(const string &edgeString);
+
     bool operator<(const Vertex &rhs) const;
 
 };
@@ -58,7 +60,9 @@ public:
 
     Vertex* findVertex(int position, Vertex* vertex);
 
-    void sparcConsensus(PAF paf, string sequence);
+    Vertex* findVertexKMer(int position, Vertex* vertex, const string &kmer);
+
+    void sparc(PAF paf, string sequence);
 
     Vertex* getRoot();
 

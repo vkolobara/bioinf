@@ -9,6 +9,23 @@
 #include "format/FASTQ.h"
 #include "algorithm/KMerGraph.h"
 
+void printTree(Vertex* root) {
+    if (root == NULL || root->edges.empty()) {
+        return;
+    }
+    cout << "(" << root->position << "," << root->kmer << ")";
+    cout << " [";
+    for(auto edge = root->edges.begin(); edge != root->edges.end(); edge++) {
+        cout << edge.operator*()->edge <<",";
+    }
+    cout << "]" << endl;
+
+    for(auto edge = root->edges.begin(); edge != root->edges.end(); edge++) {
+        //printTree(edge.operator*()->next);
+        cout << "(" << edge.operator*()->next->position << "," << edge.operator*()->next->kmer << ")";
+    }
+}
+
 int main(int argc, char *argv[]) {
     FASTA fasta("../data/lambda_layout.fasta");
     PAF paf("../data/lambda_mapping.paf");
@@ -16,11 +33,11 @@ int main(int argc, char *argv[]) {
     KMerGraph graph(2,3);
     graph.initialGraph(fasta.getSequence());
 
-    graph.sparcConsensus(paf, fasta.getSequence());
+    graph.sparc(paf, fasta.getSequence());
 
     auto root = graph.getRoot();
 //    fasta.sequence = graph.getOptimalGenome();
-  //  fasta.write("../data/lambda_our_output.fasta");
+   // fasta.write("../data/lambda_our_output.fasta");
 
     while(root) {
         cout << "(" << root->position << "," << root->kmer << ")";
@@ -38,6 +55,8 @@ int main(int argc, char *argv[]) {
         }
 
     }
+
+    //printTree(root);
 
 
 }

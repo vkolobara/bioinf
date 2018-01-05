@@ -20,6 +20,17 @@ void Vertex::addEdge(unique_ptr<Edge> edge) {
     edges.emplace_back(edge.get());
 }
 
+bool Vertex::containsEdge(const string &edgeString) {
+    for (auto edge = edges.begin(); edge != edges.end(); edge++) {
+        if (edge.operator*()->edge.compare(edgeString) == 0) {
+            edge.operator*()->quality++;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 Vertex::Vertex(int position, const string &kmer) : position(position), kmer(kmer), weight(INT32_MIN) {}
 
 bool Vertex::operator<(const Vertex &rhs) const {
@@ -87,42 +98,102 @@ Vertex* KMerGraph::findVertex(int position, Vertex* vertex) {
     }
 }
 
+Vertex* KMerGraph::findVertexKMer(int position, Vertex* vertex, const string &kmer) {
+    if (vertex->position == position && vertex->kmer.compare(kmer) == 0) {
+        return vertex;
+    }
+    else {
+        for (auto iter = vertex->edges.begin(); iter != vertex->edges.end(); iter++) {
+            auto edge = iter.operator*();
+            return findVertexKMer(position, edge->next, kmer);
+        }
+    }
+}
+
 Vertex* KMerGraph::getRoot() {
     return root;
 }
 
-void KMerGraph::sparcConsensus(PAF paf, string sequence) {
+void KMerGraph::sparc(PAF paf, string sequence) {
     auto pafRows = paf.getRows();
 
     for (auto row = pafRows.begin(); row != pafRows.end(); row++) {
         auto pafRow = row.base();
 
         auto targetVertex = findVertex(pafRow->targetStart, root);
+        auto originVertex = targetVertex;
 
         int targetOffset = pafRow->targetStart - targetVertex->position;
+        int offset = pafRow->targetStart - targetOffset;
         int position = pafRow->queryStart;
 
-        string queryStartTransition = sequence.substr(position, g);
+        string queryStartStr = sequence.substr(position, targetOffset);
+        string targetStartStr = targetVertex->kmer.substr(targetVertex->kmer.size() - targetOffset, targetOffset);
 
-        while (position <= pafRow->queryEnd) {
-            auto kmer = sequence.substr(position, k);
+        // first k-mer is good, just add edge and next vertex
+        if (queryStartStr.compare(targetStartStr) == 0) {
+            position += targetOffset;
+            string edgeString = sequence.substr(position, g);
 
-            if (kmer.compare(targetVertex->kmer) != 0 && targetVertex->position != position) {
-                auto vertex= new Vertex(targetVertex->position, kmer);
-                vertices.emplace(unique_ptr<Vertex>(vertex));
-
-                vertex->addEdge(unique_ptr<Edge>(new Edge(vertex->position, 1, sequence.substr(position + targetOffset, g))));
-            }
-            else {
-                targetVertex->addEdge(unique_ptr<Edge>(new Edge(targetVertex->position, 1, sequence.substr(position + targetOffset, g))));
+            if (targetVertex->containsEdge(edgeString)) {
+                continue;
             }
 
-            position += g;
+            unique_ptr<Vertex> nextVertex(new Vertex(offset + g, edgeString.substr(g - k, k)));
 
+            unique_ptr<Edge> edgePtr(new Edge(offset, 1, edgeString));
+            auto edge = edgePtr.get();
+            edge->next = nextVertex.get();
 
+            targetVertex->edges.emplace_back(edge);
+
+            for (auto edge = targetVertex->edges.begin(); edge != targetVertex->edges.end(); edge++) {
+                cout << "origin = ("<< targetVertex->position << ", "<< targetVertex->kmer << ")\t\tedge = " <<
+                     edge.operator*()->edge << "\t\tnext = (" << edge.operator*()->next->position <<", " << edge.operator*()->next->kmer << ")" << endl;
+            }
+
+            targetVertex = nextVertex.get();
+            position += k;
+
+            vertices.insert(move(nextVertex));
+            edges.insert(move(edgePtr));
+        }
+        else {
+            continue;
         }
 
-        cout<<endl;
+        // process the rest of sequence
+        while (position <= pafRow->queryEnd) {
+            auto edgeString = sequence.substr(position, g);
+
+            if (targetVertex->containsEdge(edgeString)) {
+                position += g;
+                continue;
+            }
+
+            auto nextKmer = edgeString.substr(g - k, k);
+
+            auto nextVertex = findVertexKMer(targetVertex->position + g, originVertex, nextKmer);
+
+            if (nextVertex == NULL) {
+                unique_ptr<Vertex> temp(new Vertex(targetVertex->position + g, nextKmer));
+                nextVertex = temp.get();
+                vertices.insert(move(temp));
+            }
+
+            unique_ptr<Edge> edgePtr(new Edge(targetVertex->position, 1, edgeString));
+            auto edge = edgePtr.get();
+            targetVertex->edges.emplace_back(edge);
+            edge->next = nextVertex;
+
+            edges.insert(move(edgePtr));
+
+            targetVertex = nextVertex;
+
+            position += g;
+        }
+
+        break;
     }
 }
 
