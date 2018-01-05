@@ -121,6 +121,8 @@ void KMerGraph::sparc(PAF paf, string sequence) {
     for (auto row = pafRows.begin(); row != pafRows.end(); row++) {
         auto pafRow = row.base();
 
+        int weight = pafRow->relativeStrand == '+' ? pafRow->residueMatches : pafRow->residueMatches * -1;
+
         auto targetVertex = findVertex(pafRow->targetStart, root);
         auto originVertex = targetVertex;
 
@@ -136,13 +138,13 @@ void KMerGraph::sparc(PAF paf, string sequence) {
             position += targetOffset;
             string edgeString = sequence.substr(position, g);
 
-            if (targetVertex->containsEdge(edgeString, pafRow->residueMatches)) {
+            if (targetVertex->containsEdge(edgeString, weight)) {
                 continue;
             }
 
             unique_ptr<Vertex> nextVertex(new Vertex(offset + g, edgeString.substr(g - k, k)));
 
-            unique_ptr<Edge> edgePtr(new Edge(offset, 1, edgeString));
+            unique_ptr<Edge> edgePtr(new Edge(offset, weight, edgeString));
             auto edge = edgePtr.get();
             edge->next = nextVertex.get();
 
@@ -171,7 +173,7 @@ void KMerGraph::sparc(PAF paf, string sequence) {
 
             auto nextVertex = findVertexKMer(targetVertex->position + g, originVertex, nextKmer);
 
-            if (nextVertex != NULL && nextVertex->containsEdge(edgeString, pafRow->residueMatches)) {
+            if (nextVertex != NULL && nextVertex->containsEdge(edgeString, weight)) {
                 position += g;
                 continue;
             }
