@@ -9,7 +9,6 @@
 #include <string>
 #include <memory>
 #include <set>
-#include <map>
 #include "../format/PAF.h"
 #include "../format/FASTA.h"
 
@@ -22,13 +21,14 @@ struct Vertex {
     string kmer;
     vector<Edge*> edges;
     int weight;
-    Edge* bestEdge;
+    Edge* returnEdge;
+    Vertex* previousVertex;
 
     Vertex(int position, const string &kmer);
 
     void addEdge(unique_ptr<Edge> edge);
 
-    bool containsEdge(const string &edgeString);
+    bool containsEdge(const string &edgeString, int quality);
 
     bool operator<(const Vertex &rhs) const;
 
@@ -53,7 +53,6 @@ private:
     Vertex* root;
     set<unique_ptr<Vertex>> vertices;
     set<unique_ptr<Edge>> edges;
-    map<Vertex*, pair<Edge*, Vertex*>> bestPathTransitions;          // left vertex is the destination, right is the source
     Vertex* findBestPath();
 public:
     KMerGraph(int k, int g);

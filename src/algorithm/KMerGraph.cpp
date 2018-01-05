@@ -21,10 +21,10 @@ void Vertex::addEdge(unique_ptr<Edge> edge) {
     edges.emplace_back(edge.get());
 }
 
-bool Vertex::containsEdge(const string &edgeString) {
+bool Vertex::containsEdge(const string &edgeString, int quality) {
     for (auto edge = edges.begin(); edge != edges.end(); edge++) {
         if (edge.operator*()->edge.compare(edgeString) == 0) {
-            edge.operator*()->quality++;
+            edge.operator*()->quality += quality;
             return true;
         }
     }
@@ -136,7 +136,7 @@ void KMerGraph::sparc(PAF paf, string sequence) {
             position += targetOffset;
             string edgeString = sequence.substr(position, g);
 
-            if (targetVertex->containsEdge(edgeString)) {
+            if (targetVertex->containsEdge(edgeString, pafRow->residueMatches)) {
                 continue;
             }
 
@@ -159,6 +159,7 @@ void KMerGraph::sparc(PAF paf, string sequence) {
             vertices.insert(move(nextVertex));
             edges.insert(move(edgePtr));
         }
+            // vertex doesn't match with query start, need to add an edge before the found vertex and start from previous vertix
         else {
             continue;
         }
@@ -170,8 +171,7 @@ void KMerGraph::sparc(PAF paf, string sequence) {
 
             auto nextVertex = findVertexKMer(targetVertex->position + g, originVertex, nextKmer);
 
-            if (nextVertex != NULL && nextVertex->containsEdge(edgeString)) {
-                cout << "found" << endl;
+            if (nextVertex != NULL && nextVertex->containsEdge(edgeString, pafRow->residueMatches)) {
                 position += g;
                 continue;
             }
@@ -222,7 +222,8 @@ Vertex* KMerGraph::findBestPath() {
 
             if (edge->next->weight < currentVertex->weight + edge->quality) {
                 edge->next->weight = currentVertex->weight + edge->quality;
-                bestPathTransitions[edge->next] = make_pair(edge, currentVertex);
+                edge->next->previousVertex = currentVertex;
+                edge->next->returnEdge = edge;
             }
         }
     }
@@ -234,13 +235,12 @@ string KMerGraph::getOptimalGenome() {
     auto vertex = findBestPath();
     stack<string> stringStack;
 
-    while (bestPathTransitions.find(vertex) != bestPathTransitions.end()) {
-        auto previous = bestPathTransitions[vertex];
-        stringStack.push(previous.first->edge);
-        vertex = previous.second;
+    while (vertex->previousVertex != NULL && vertex->returnEdge != NULL) {
+        stringStack.push(vertex->returnEdge->edge);
+        vertex = vertex->previousVertex;
     }
 
-    string genome = vertex->kmer;
+    string genome = root->kmer;
 
     while (!stringStack.empty()) {
         genome += stringStack.top();
