@@ -9,6 +9,8 @@
 #include <string>
 #include <memory>
 #include <set>
+#include "../format/PAF.h"
+#include "../format/FASTA.h"
 
 using namespace std;
 
@@ -53,6 +55,10 @@ public:
     KMerGraph(int k, int g);
 
     void initialGraph(string backbone);
+
+    Vertex* findVertex(int position, Vertex* vertex);
+
+    void sparcConsensus(PAF paf, string sequence);
 
     Vertex* getRoot();
 

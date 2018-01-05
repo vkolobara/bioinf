@@ -75,8 +75,55 @@ void KMerGraph::initialGraph(string backbone) {
 
 }
 
+Vertex* KMerGraph::findVertex(int position, Vertex* vertex) {
+    if (vertex->position <= position && vertex->position + g > position) {
+        return vertex;
+    }
+    else {
+        for (auto iter = vertex->edges.begin(); iter != vertex->edges.end(); iter++) {
+            auto edge = iter.operator*();
+            return findVertex(position, edge->next);
+        }
+    }
+}
+
 Vertex* KMerGraph::getRoot() {
     return root;
+}
+
+void KMerGraph::sparcConsensus(PAF paf, string sequence) {
+    auto pafRows = paf.getRows();
+
+    for (auto row = pafRows.begin(); row != pafRows.end(); row++) {
+        auto pafRow = row.base();
+
+        auto targetVertex = findVertex(pafRow->targetStart, root);
+
+        int targetOffset = pafRow->targetStart - targetVertex->position;
+        int position = pafRow->queryStart;
+
+        string queryStartTransition = sequence.substr(position, g);
+
+        while (position <= pafRow->queryEnd) {
+            auto kmer = sequence.substr(position, k);
+
+            if (kmer.compare(targetVertex->kmer) != 0 && targetVertex->position != position) {
+                auto vertex= new Vertex(targetVertex->position, kmer);
+                vertices.emplace(unique_ptr<Vertex>(vertex));
+
+                vertex->addEdge(unique_ptr<Edge>(new Edge(vertex->position, 1, sequence.substr(position + targetOffset, g))));
+            }
+            else {
+                targetVertex->addEdge(unique_ptr<Edge>(new Edge(targetVertex->position, 1, sequence.substr(position + targetOffset, g))));
+            }
+
+            position += g;
+
+
+        }
+
+        cout<<endl;
+    }
 }
 
 void KMerGraph::calculateLongestPath() {
@@ -85,21 +132,15 @@ void KMerGraph::calculateLongestPath() {
     queue<Vertex*> queue;
     queue.push(root);
 
-    Vertex* vertex = root;
-
     while (!queue.empty()) {
         auto currentVertex = queue.front();
         queue.pop();
 
-        if (currentVertex->weight > vertex->weight) {
-            vertex = currentVertex;
-        }
-
-        for (auto edge : vertex->edges) {
+        for (auto edge : currentVertex->edges) {
             if (edge->next->weight == INT32_MIN) {
                 queue.push(edge->next);
             }
-            
+
             if (edge->next->weight < currentVertex->weight + edge->quality) {
                 edge->next->weight = currentVertex->weight + edge->quality;
                 currentVertex->bestEdge = edge;
