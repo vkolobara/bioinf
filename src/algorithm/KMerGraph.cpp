@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <queue>
+#include <stack>
 #include "KMerGraph.h"
 
 Edge::Edge(int position, int quality, const string &edge) : position(position), quality(quality), edge(edge) {}
@@ -147,10 +148,10 @@ void KMerGraph::sparc(PAF paf, string sequence) {
 
             targetVertex->edges.emplace_back(edge);
 
-            for (auto edge = targetVertex->edges.begin(); edge != targetVertex->edges.end(); edge++) {
+            /*for (auto edge = targetVertex->edges.begin(); edge != targetVertex->edges.end(); edge++) {
                 cout << "origin = ("<< targetVertex->position << ", "<< targetVertex->kmer << ")\t\tedge = " <<
                      edge.operator*()->edge << "\t\tnext = (" << edge.operator*()->next->position <<", " << edge.operator*()->next->kmer << ")" << endl;
-            }
+            }*/
 
             targetVertex = nextVertex.get();
             position += k;
@@ -165,15 +166,16 @@ void KMerGraph::sparc(PAF paf, string sequence) {
         // process the rest of sequence
         while (position <= pafRow->queryEnd) {
             auto edgeString = sequence.substr(position, g);
+            auto nextKmer = edgeString.substr(g - k, k);
 
-            if (targetVertex->containsEdge(edgeString)) {
+            auto nextVertex = findVertexKMer(targetVertex->position + g, originVertex, nextKmer);
+
+            if (nextVertex != NULL && nextVertex->containsEdge(edgeString)) {
+                cout << "found" << endl;
                 position += g;
                 continue;
             }
 
-            auto nextKmer = edgeString.substr(g - k, k);
-
-            auto nextVertex = findVertexKMer(targetVertex->position + g, originVertex, nextKmer);
 
             if (nextVertex == NULL) {
                 unique_ptr<Vertex> temp(new Vertex(targetVertex->position + g, nextKmer));
@@ -193,19 +195,25 @@ void KMerGraph::sparc(PAF paf, string sequence) {
             position += g;
         }
 
-        break;
+        //break;
     }
 }
 
-void KMerGraph::calculateLongestPath() {
+Vertex* KMerGraph::findBestPath() {
     root->weight = 0;
 
     queue<Vertex*> queue;
     queue.push(root);
 
+    Vertex* top = root;
+
     while (!queue.empty()) {
         auto currentVertex = queue.front();
         queue.pop();
+
+        if (currentVertex->weight > top->weight) {
+            top = currentVertex;
+        }
 
         for (auto edge : currentVertex->edges) {
             if (edge->next->weight == INT32_MIN) {
@@ -214,21 +222,29 @@ void KMerGraph::calculateLongestPath() {
 
             if (edge->next->weight < currentVertex->weight + edge->quality) {
                 edge->next->weight = currentVertex->weight + edge->quality;
-                currentVertex->bestEdge = edge;
+                bestPathTransitions[edge->next] = make_pair(edge, currentVertex);
             }
         }
     }
+
+    return top;
 }
 
 string KMerGraph::getOptimalGenome() {
-    calculateLongestPath();
-    Vertex* vertex = root;
+    auto vertex = findBestPath();
+    stack<string> stringStack;
 
-    string genome = root->kmer;
+    while (bestPathTransitions.find(vertex) != bestPathTransitions.end()) {
+        auto previous = bestPathTransitions[vertex];
+        stringStack.push(previous.first->edge);
+        vertex = previous.second;
+    }
 
-    while (vertex->bestEdge != NULL) {
-        genome += vertex->bestEdge->edge;
-        vertex = vertex->bestEdge->next;
+    string genome = vertex->kmer;
+
+    while (!stringStack.empty()) {
+        genome += stringStack.top();
+        stringStack.pop();
     }
 
     return genome;

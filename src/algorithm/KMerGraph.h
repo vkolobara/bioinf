@@ -9,6 +9,7 @@
 #include <string>
 #include <memory>
 #include <set>
+#include <map>
 #include "../format/PAF.h"
 #include "../format/FASTA.h"
 
@@ -52,7 +53,8 @@ private:
     Vertex* root;
     set<unique_ptr<Vertex>> vertices;
     set<unique_ptr<Edge>> edges;
-    void calculateLongestPath();
+    map<Vertex*, pair<Edge*, Vertex*>> bestPathTransitions;          // left vertex is the destination, right is the source
+    Vertex* findBestPath();
 public:
     KMerGraph(int k, int g);
 
