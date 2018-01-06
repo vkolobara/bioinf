@@ -16,7 +16,7 @@ MAPPING_PATH="data/"$INSTANCE"_mapping.sam"
 OUTPUT_PATH="data/"$INSTANCE"_sparc_output.fasta"
 REFERENCE_PATH="data/"$INSTANCE"_reference.fasta"
 
-./mapping.sh $INSTANCE &>/dev/null
+./mapping.sh $BACKBONE_PATH $READS_PATH $MAPPING_PATH &>/dev/null
 
 echo "BASE SCORE"
 ./print_score.sh $BACKBONE_PATH $REFERENCE_PATH
@@ -26,5 +26,5 @@ do
 	./build/bioinf $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
 	echo "SCORE at iteration "$i
 	./print_score.sh $OUTPUT_PATH $REFERENCE_PATH
-	./mapping.sh $BACKBONE_PATH $READS_PATH $MAPPING_PATH &>/dev/null
+	./mapping.sh $OUTPUT_PATH $READS_PATH $MAPPING_PATH &>/dev/null
 done
