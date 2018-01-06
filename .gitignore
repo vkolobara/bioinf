@@ -37,4 +37,5 @@ libs
 data
 
 .idea
-cmake-build-debug
+release
+*build*

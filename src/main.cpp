@@ -3,60 +3,37 @@
 //
 
 #include <iostream>
+#include <fstream>
 #include "format/Format.h"
-#include "format/PAF.h"
 #include "format/FASTA.h"
-#include "format/FASTQ.h"
 #include "algorithm/KMerGraph.h"
 
-void printTree(Vertex* root) {
-    if (root == NULL || root->edges.empty()) {
-        return;
-    }
-    cout << "(" << root->position << "," << root->kmer << ")";
-    cout << " [";
-    for(auto edge = root->edges.begin(); edge != root->edges.end(); edge++) {
-        cout << edge.operator*()->edge <<",";
-    }
-    cout << "]" << endl;
-
-    for(auto edge = root->edges.begin(); edge != root->edges.end(); edge++) {
-        printTree(edge.operator*()->next);
-        //cout << "(" << edge.operator*()->next->position << "," << edge.operator*()->next->kmer << ")";
-    }
-}
-
 int main(int argc, char *argv[]) {
-    FASTA fasta("../data/lambda_layout.fasta");
-    PAF paf("../data/lambda_mapping.paf");
 
-    KMerGraph graph(2,3);
-    graph.initialGraph(fasta.getSequence());
+    if (argc != 4) {
+        cerr << "3 arguments needed (path to the backbone (.fasta), path to the mapping (.sam), output path .fasta)" << endl;
+    } else {
+        std::ifstream in(argv[2]);
+        std::cin.rdbuf(in.rdbuf());
 
-    graph.sparc(paf, fasta.getSequence());
+        FASTA fasta(argv[1]);
+        //FASTQ fastq("../data/lambda_reads.fastq");
+        //SAM sam("../data/lambda_mapping.sam");
 
-    auto root = graph.getRoot();
-    fasta.sequence = graph.getOptimalGenome();
-    fasta.write("../data/lambda_our_output.fasta");
+        KMerGraph graph(3, 4);
+        graph.initialGraph(fasta.getSequence());
 
-    while(root) {
-        cout << "(" << root->position << "," << root->kmer << ")";
-        //cout << root->weight;
+        string row;
 
-        if (!root->edges.empty()) {
-            cout << " [";
-            for(auto edge = root->edges.begin(); edge != root->edges.end(); edge++) {
-                cout << edge.operator*()->edge <<",";
-            }
-            cout << "]" <<  root->weight << endl;
-            root = root->edges[0]->next;
-        } else {
-            break;
+        while (getline(cin, row)) {
+            if (row[0] == '@') continue;
+            SAMRow samrow(row);
+            if (samrow.flag == 4) continue;
+            graph.sparc(samrow);
         }
 
+        fasta.setSequence(graph.getOptimalGenome());
+        fasta.write(argv[3]);
     }
-
-    //printTree(root);
-
 
 }
