@@ -3,6 +3,6 @@ project(bioinf)
 
 set(CMAKE_CXX_STANDARD 11)
 
-set(SOURCE_FILES src/main.cpp src/format/PAF.cpp src/format/FASTQ.cpp src/format/FASTQ.h src/format/FASTA.cpp src/format/FASTA.h src/algorithm/KMerGraph.cpp src/algorithm/KMerGraph.h)
+set(SOURCE_FILES src/main.cpp src/format/FASTA.cpp src/format/FASTA.h src/algorithm/KMerGraph.cpp src/algorithm/KMerGraph.h src/format/SAM.cpp src/format/SAM.h)
 
 add_executable(bioinf ${SOURCE_FILES})
