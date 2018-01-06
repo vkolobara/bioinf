@@ -18,22 +18,6 @@ fi
 mkdir libs
 cd libs
 
-if [[ -d "minimap" ]]; then
-	echo "---------- Skip cloning minimap ----------"
-else
-	echo "---------- Clone minimap ----------"
-	git clone https://github.com/lh3/minimap.git
-fi
-
-cd minimap
-if [[ $(ls minimap | wc -l) == 1 ]]; then
-	echo "---------- Skip building minimap ----------"
-else
-	echo "---------- Build minimap ----------"
-	make
-fi
-cd ..
-
 if [[ -d "graphmap" ]]; then
 	echo "---------- Skip cloning graphmap ----------"
 else
@@ -50,9 +34,30 @@ else
 	make modules
 	make
 fi
+cd ..
+
+if [ -d "MUMmer3.23" ]; then
+	echo "---------- Skip downloading mummer ----------"
+else
+	echo "---------- Download mummer ----------"
+	wget -O mummer.tar.gz https://sourceforge.net/projects/mummer/files/mummer/3.23/MUMmer3.23.tar.gz
+	tar -xzvf mummer.tar.gz
+	rm mummer.tar.gz
+fi
+
+cd MUMmer3.23
+if [ -f "dnadiff" ]; then
+	echo "---------- Skip building mummer ----------"
+else
+	echo "---------- Build mummer ----------"
+	make
+fi
 
 cd ../..
 ################################################################################
 
-
-# TODO: makefile for our project
+########################## BUILD OUR SPARC #####################################
+mkdir build
+cd build
+cmake -DCMAKE_BUILD_TYPE=Release ..
+make
