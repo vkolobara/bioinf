@@ -9,8 +9,7 @@
 #include <string>
 #include <memory>
 #include <set>
-#include "../format/PAF.h"
-#include "../format/FASTA.h"
+#include "../format/SAM.h"
 
 using namespace std;
 
@@ -19,19 +18,23 @@ struct Edge;
 struct Vertex {
     int position;
     string kmer;
+
     vector<Edge*> edges;
+
     int weight;
+
     Edge* returnEdge;
     Vertex* previousVertex;
 
     Vertex(int position, const string &kmer);
 
-    void addEdge(unique_ptr<Edge> edge);
+    void addEdge(Edge* edge);
 
-    bool containsEdge(const string &edgeString, int quality);
+};
 
-    bool operator<(const Vertex &rhs) const;
-
+struct VertexComp
+{
+    bool operator()(const Vertex* lhs, const Vertex* rhs) const;
 };
 
 struct Edge {
@@ -41,34 +44,34 @@ struct Edge {
 
     Vertex* next;
 
-    bool operator<(const Edge &rhs) const;
-
     Edge(int position, int quality, const string &edge);
 };
 
 class KMerGraph {
 private:
+    set<Vertex*, VertexComp> vertices;
     int k;
     int g;
     Vertex* root;
-    set<unique_ptr<Vertex>> vertices;
-    set<unique_ptr<Edge>> edges;
+
+public:
+    virtual ~KMerGraph();
+
+private:
     Vertex* findBestPath();
 public:
+    uint G;
+    uint L;
+
     KMerGraph(int k, int g);
 
     void initialGraph(string backbone);
-
-    Vertex* findVertex(int position, Vertex* vertex);
-
-    Vertex* findVertexKMer(int position, Vertex* vertex, const string &kmer);
-
-    void sparc(PAF paf, string sequence);
 
     Vertex* getRoot();
 
     string getOptimalGenome();
 
+    void sparc(SAMRow sam);
 };
 
 

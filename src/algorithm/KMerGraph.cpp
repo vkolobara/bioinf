@@ -2,6 +2,7 @@
 // Created by vkolobara on 12/29/17.
 //
 
+#include <algorithm>
 #include <iostream>
 #include <queue>
 #include <stack>
@@ -9,205 +10,157 @@
 
 Edge::Edge(int position, int quality, const string &edge) : position(position), quality(quality), edge(edge) {}
 
-bool Edge::operator<(const Edge &rhs) const {
-    if (position < rhs.position)
-        return true;
-    if (rhs.position < position)
-        return false;
-    return edge < rhs.edge;
+void Vertex::addEdge(Edge *edge) {
+    edges.push_back(edge);
 }
 
-void Vertex::addEdge(unique_ptr<Edge> edge) {
-    edges.emplace_back(edge.get());
-}
-
-bool Vertex::containsEdge(const string &edgeString, int quality) {
-    for (auto edge = edges.begin(); edge != edges.end(); edge++) {
-        if (edge.operator*()->edge.compare(edgeString) == 0) {
-            edge.operator*()->quality += quality;
-            return true;
-        }
-    }
-
-    return false;
-}
-
-Vertex::Vertex(int position, const string &kmer) : position(position), kmer(kmer), weight(INT32_MIN) {}
-
-bool Vertex::operator<(const Vertex &rhs) const {
-    if (position < rhs.position)
-        return true;
-    if (rhs.position < position)
-        return false;
-    return kmer < rhs.kmer;
-}
+Vertex::Vertex(int position, const string &kmer) : position(position), kmer(kmer), weight(-1) {}
 
 KMerGraph::KMerGraph(int k, int g) : k(k), g(g) {}
 
 void KMerGraph::initialGraph(string backbone) {
     vertices.clear();
-    edges.clear();
 
-    auto size = (int) backbone.size();
+    auto size = (uint) backbone.size();
 
-    Edge* edgePtr = nullptr;
+    Edge *edge = nullptr;
 
-    for (int i=0; i+k<=size;) {
+    for (uint i = 0; i + k <= size;) {
         auto position = i;
         auto kmer = backbone.substr(i, k);
 
-        unique_ptr<Vertex> v(new Vertex(position, kmer));
+        auto v = new Vertex(position, kmer);
 
-
-        if (edgePtr) {
-            edgePtr->next = v.get();
+        if (edge) {
+            edge->next = v;
         }
 
-        i+=k;
+        vertices.insert(v);
 
-        if (i+g > size) {
-            vertices.insert(move(v));
+        i += k;
+
+        if (i + g > size) {
             break;
         }
 
         auto edgeS = backbone.substr(i, g);
 
-        unique_ptr<Edge> edge(new Edge(position, 1, edgeS));
-        edgePtr = edge.get();
+        edge = new Edge(position, 1, edgeS);
 
-        v.get()->edges.emplace_back(edge.get());
+        v->edges.push_back(edge);
 
-        if (i==k) root = v.get();
+        edge->next=v;
 
-        vertices.insert(move(v));
-        edges.insert(move(edge));
-
-        i+=g-k;
+        i += g-k;
     }
+
+    root = *vertices.begin();
+
+    G = backbone.size();
 
 }
 
-Vertex* KMerGraph::findVertex(int position, Vertex* vertex) {
-    if (vertex->position <= position && vertex->position + g > position) {
-        return vertex;
-    }
-    else {
-        for (auto iter = vertex->edges.begin(); iter != vertex->edges.end(); iter++) {
-            auto edge = iter.operator*();
-            return findVertex(position, edge->next);
-        }
-    }
-}
-
-Vertex* KMerGraph::findVertexKMer(int position, Vertex* vertex, const string &kmer) {
-    if (vertex->position == position && vertex->kmer.compare(kmer) == 0) {
-        return vertex;
-    }
-    else {
-        for (auto iter = vertex->edges.begin(); iter != vertex->edges.end(); iter++) {
-            auto edge = iter.operator*();
-            return findVertexKMer(position, edge->next, kmer);
-        }
-    }
-}
-
-Vertex* KMerGraph::getRoot() {
+Vertex *KMerGraph::getRoot() {
     return root;
 }
 
-void KMerGraph::sparc(PAF paf, string sequence) {
-    auto pafRows = paf.getRows();
+void KMerGraph::sparc(SAMRow row) {
+    L+=row.alignment.size();
+    auto pos = row.pos-1;
+    uint offset = 0;
 
-    for (auto row = pafRows.begin(); row != pafRows.end(); row++) {
-        auto pafRow = row.base();
+    while (pos % g != 0) {
+        pos++;
+        offset++;
+    }
 
-        int weight = pafRow->relativeStrand == '+' ? pafRow->residueMatches : pafRow->residueMatches * -1;
+    auto kmer = row.alignment.substr(offset, k);
+    auto curr = new Vertex(pos, kmer);
 
-        auto targetVertex = findVertex(pafRow->targetStart, root);
-        auto originVertex = targetVertex;
+    set<Vertex *, VertexComp>::iterator it;
 
-        int targetOffset = pafRow->targetStart - targetVertex->position;
-        int offset = pafRow->targetStart - targetOffset;
-        int position = pafRow->queryStart;
+    if ((it = vertices.find(curr)) == vertices.end()) {
+        vertices.insert(curr);
+    } else {
+        delete curr;
+        curr = *it;
+    }
 
-        string queryStartStr = sequence.substr(position, targetOffset);
-        string targetStartStr = targetVertex->kmer.substr(targetVertex->kmer.size() - targetOffset, targetOffset);
+    for (int index = k + offset; index + g <= row.alignment.size(); index += g) {
+        string edgeStr;
 
-        // first k-mer is good, just add edge and next vertex
-        if (queryStartStr.compare(targetStartStr) == 0) {
-            position += targetOffset;
-            string edgeString = sequence.substr(position, g);
-
-            if (targetVertex->containsEdge(edgeString, weight)) {
-                continue;
-            }
-
-            unique_ptr<Vertex> nextVertex(new Vertex(offset + g, edgeString.substr(g - k, k)));
-
-            unique_ptr<Edge> edgePtr(new Edge(offset, weight, edgeString));
-            auto edge = edgePtr.get();
-            edge->next = nextVertex.get();
-
-            targetVertex->edges.emplace_back(edge);
-
-            /*for (auto edge = targetVertex->edges.begin(); edge != targetVertex->edges.end(); edge++) {
-                cout << "origin = ("<< targetVertex->position << ", "<< targetVertex->kmer << ")\t\tedge = " <<
-                     edge.operator*()->edge << "\t\tnext = (" << edge.operator*()->next->position <<", " << edge.operator*()->next->kmer << ")" << endl;
-            }*/
-
-            targetVertex = nextVertex.get();
-            position += k;
-
-            vertices.insert(move(nextVertex));
-            edges.insert(move(edgePtr));
-        }
-            // vertex doesn't match with query start, need to add an edge before the found vertex and start from previous vertix
-        else {
-            continue;
+        if (row.insertions.find(index) != row.insertions.end()) {
+            edgeStr = row.insertions[index] + row.alignment.substr(index, g);;
+        } else {
+            edgeStr = row.alignment.substr(index, g);
         }
 
-        // process the rest of sequence
-        while (position <= pafRow->queryEnd) {
-            auto edgeString = sequence.substr(position, g);
-            auto nextKmer = edgeString.substr(g - k, k);
+        auto kmerNext = edgeStr.substr(g - k, k);
 
-            auto nextVertex = findVertexKMer(targetVertex->position + g, originVertex, nextKmer);
+        auto edgeQ = 0;
 
-            if (nextVertex != NULL && nextVertex->containsEdge(edgeString, weight)) {
-                position += g;
-                continue;
+        /*for (int i=0; i<g; i++) {
+            edgeQ += (int) row.qual[index+i];
+        }*/
+
+        edgeQ = 15;
+
+        auto nextVertex = new Vertex(curr->position + g, kmerNext);
+
+        if ((it = vertices.find(nextVertex)) == vertices.end()) {
+            vertices.insert(nextVertex);
+        } else {
+            delete nextVertex;
+            nextVertex = *it;
+        }
+
+        bool flag = true;
+        for (auto edge : curr->edges) {
+            if (edge->edge == edgeStr) {
+                flag = false;
+                edge->quality += edgeQ;
             }
+        }
 
-
-            if (nextVertex == NULL) {
-                unique_ptr<Vertex> temp(new Vertex(targetVertex->position + g, nextKmer));
-                nextVertex = temp.get();
-                vertices.insert(move(temp));
-            }
-
-            unique_ptr<Edge> edgePtr(new Edge(targetVertex->position, 1, edgeString));
-            auto edge = edgePtr.get();
-            targetVertex->edges.emplace_back(edge);
+        if (flag) {
+            auto edge = new Edge(curr->position, edgeQ, edgeStr);
             edge->next = nextVertex;
-
-            edges.insert(move(edgePtr));
-
-            targetVertex = nextVertex;
-
-            position += g;
+            curr->addEdge(edge);
+            //edges.insert(edge);
         }
 
-        //break;
+        curr = nextVertex;
     }
 }
 
-Vertex* KMerGraph::findBestPath() {
-    root->weight = 0;
+KMerGraph::~KMerGraph() {
+    for (auto vertex : vertices) {
+        for (auto edge : vertex->edges) {
+            if (edge) delete edge;
+        }
 
-    queue<Vertex*> queue;
+        delete vertex;
+    }
+
+    vertices.clear();
+
+}
+
+
+Vertex *KMerGraph::findBestPath() {
+    auto c = max (2, (int) (0.2 * L/G));
+
+    for (auto v : vertices) {
+        for (auto e : v->edges) {
+            e->quality -= c;
+        }
+    }
+
+    queue<Vertex *> queue;
     queue.push(root);
 
-    Vertex* top = root;
+    root->weight = 0;
+    auto top = root;
 
     while (!queue.empty()) {
         auto currentVertex = queue.front();
@@ -218,7 +171,7 @@ Vertex* KMerGraph::findBestPath() {
         }
 
         for (auto edge : currentVertex->edges) {
-            if (edge->next->weight == INT32_MIN) {
+            if (edge->next->weight == -1) {
                 queue.push(edge->next);
             }
 
@@ -233,11 +186,12 @@ Vertex* KMerGraph::findBestPath() {
     return top;
 }
 
+
 string KMerGraph::getOptimalGenome() {
     auto vertex = findBestPath();
     stack<string> stringStack;
 
-    while (vertex->previousVertex != NULL && vertex->returnEdge != NULL) {
+    while (vertex != root && vertex->previousVertex && vertex->returnEdge) {
         stringStack.push(vertex->returnEdge->edge);
         vertex = vertex->previousVertex;
     }
@@ -249,5 +203,14 @@ string KMerGraph::getOptimalGenome() {
         stringStack.pop();
     }
 
+    genome.erase(remove(genome.begin(), genome.end(), '-'), genome.end());
     return genome;
+}
+
+bool VertexComp::operator()(const Vertex *lhs, const Vertex *rhs) const {
+    if (lhs->position < rhs->position)
+        return true;
+    if (rhs->position < lhs->position)
+        return false;
+    return lhs->kmer < rhs->kmer;
 }
