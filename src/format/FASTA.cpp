@@ -45,4 +45,12 @@ const string &FASTA::getSequence() const {
     return sequence;
 }
 
+void FASTA::setName(const string &name) {
+    FASTA::name = name;
+}
+
+void FASTA::setSequence(const string &sequence) {
+    FASTA::sequence = sequence;
+}
+
 

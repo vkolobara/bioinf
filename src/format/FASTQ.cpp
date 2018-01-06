@@ -51,6 +51,10 @@ const vector<Reading> &FASTQ::getReadings() const {
     return readings;
 }
 
+void FASTQ::setReadings(const vector<Reading> &readings) {
+    FASTQ::readings = readings;
+}
+
 
 void Reading::read(vector<string> lines) {
     if (lines.size() != 4) {
@@ -71,3 +75,6 @@ string Reading::write() {
     oss << name << "\n" << sequence << "\n+\n" << quality;
     return oss.str();
 }
+
+Reading::Reading(const string &name, const string &sequence, const string &quality) : name(name), sequence(sequence),
+                                                                                      quality(quality) {}
