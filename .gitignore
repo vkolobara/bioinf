@@ -39,3 +39,5 @@ data
 .idea
 release
 *build*
+
+test.txt
