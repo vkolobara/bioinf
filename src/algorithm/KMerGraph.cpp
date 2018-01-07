@@ -8,15 +8,37 @@
 #include <stack>
 #include "KMerGraph.h"
 
-Edge::Edge(int position, int quality, const string &edge) : position(position), quality(quality), edge(edge) {}
+Edge::Edge(uint position, int quality, const string &edge) : position(position), quality(quality), edge(edge) {
+	next = nullptr;
+}
+
+Edge::Edge(uint position, int quality, const string &edge, Vertex* next) : position(position), quality(quality), edge(edge), next(next) {}
 
 void Vertex::addEdge(Edge *edge) {
     edges.push_back(edge);
 }
 
-Vertex::Vertex(int position, const string &kmer) : position(position), kmer(kmer), weight(-1) {}
+Vertex::Vertex(uint position, const string &kmer) : position(position), kmer(kmer), weight(-1) {
+	returnEdge = nullptr;
+	previousVertex = nullptr;
+}
 
-KMerGraph::KMerGraph(int k, int g) : k(k), g(g) {}
+Vertex::~Vertex() {
+    returnEdge = nullptr;
+    previousVertex = nullptr;
+
+    for (auto edge : edges) {
+        delete edge;
+    }
+
+    edges.clear();
+}
+
+
+KMerGraph::KMerGraph(short k, short g) : k(k), g(g) {
+	L=0;
+	G=0;
+}
 
 void KMerGraph::initialGraph(string backbone) {
     vertices.clear();
@@ -45,7 +67,7 @@ void KMerGraph::initialGraph(string backbone) {
 
         auto edgeS = backbone.substr(i, g);
 
-        edge = new Edge(position, 1, edgeS);
+        edge = new Edge(position, 0, edgeS);
 
         v->edges.push_back(edge);
 
@@ -54,39 +76,37 @@ void KMerGraph::initialGraph(string backbone) {
         i += g-k;
     }
 
-    root = *vertices.begin();
-
-    G = backbone.size();
+    G = (uint) backbone.size();
 
 }
 
 Vertex *KMerGraph::getRoot() {
-    return root;
+    return *vertices.begin();
 }
 
 void KMerGraph::sparc(SAMRow row) {
     L+=row.alignment.size();
-    auto pos = row.pos-1;
+
+    row.pos--;
     uint offset = 0;
 
-    while (pos % g != 0) {
-        pos++;
+    while (row.pos % g != 0) {
+        row.pos++;
         offset++;
     }
 
     auto kmer = row.alignment.substr(offset, k);
-    auto curr = new Vertex(pos, kmer);
+    auto curr = new Vertex(row.pos, kmer);
 
     set<Vertex *, VertexComp>::iterator it;
 
-    if ((it = vertices.find(curr)) == vertices.end()) {
-        vertices.insert(curr);
-    } else {
+    auto ret = vertices.insert(curr);
+    if (!ret.second) {
         delete curr;
-        curr = *it;
     }
+    curr = *ret.first;
 
-    for (int index = k + offset; index + g <= row.alignment.size(); index += g) {
+    for (uint index = k + offset; index + g <= row.alignment.size(); index += g) {
         string edgeStr;
 
         if (row.insertions.find(index) != row.insertions.end()) {
@@ -97,22 +117,15 @@ void KMerGraph::sparc(SAMRow row) {
 
         auto kmerNext = edgeStr.substr(g - k, k);
 
-        auto edgeQ = 0;
+        short edgeQ = 15;
 
-        /*for (int i=0; i<g; i++) {
-            edgeQ += (int) row.qual[index+i];
-        }*/
+        auto nextVertex =new Vertex((uint) curr->position + g, kmerNext);
 
-        edgeQ = 15;
-
-        auto nextVertex = new Vertex(curr->position + g, kmerNext);
-
-        if ((it = vertices.find(nextVertex)) == vertices.end()) {
-            vertices.insert(nextVertex);
-        } else {
+        auto ret = vertices.insert(nextVertex);
+        if (!ret.second) {
             delete nextVertex;
-            nextVertex = *it;
         }
+        nextVertex = *ret.first;
 
         bool flag = true;
         for (auto edge : curr->edges) {
@@ -122,12 +135,7 @@ void KMerGraph::sparc(SAMRow row) {
             }
         }
 
-        if (flag) {
-            auto edge = new Edge(curr->position, edgeQ, edgeStr);
-            edge->next = nextVertex;
-            curr->addEdge(edge);
-            //edges.insert(edge);
-        }
+        if (flag) curr->addEdge(new Edge(curr->position, edgeQ, edgeStr, nextVertex));
 
         curr = nextVertex;
     }
@@ -135,9 +143,6 @@ void KMerGraph::sparc(SAMRow row) {
 
 KMerGraph::~KMerGraph() {
     for (auto vertex : vertices) {
-        for (auto edge : vertex->edges) {
-            if (edge) delete edge;
-        }
 
         delete vertex;
     }
@@ -147,7 +152,7 @@ KMerGraph::~KMerGraph() {
 }
 
 
-Vertex *KMerGraph::findBestPath() {
+Vertex* KMerGraph::findBestPath() {
     auto c = max (2, (int) (0.2 * L/G));
 
     for (auto v : vertices) {
@@ -155,6 +160,8 @@ Vertex *KMerGraph::findBestPath() {
             e->quality -= c;
         }
     }
+
+    auto root = getRoot();
 
     queue<Vertex *> queue;
     queue.push(root);
@@ -191,10 +198,11 @@ string KMerGraph::getOptimalGenome() {
     auto vertex = findBestPath();
     stack<string> stringStack;
 
-    while (vertex != root && vertex->previousVertex && vertex->returnEdge) {
+    while (vertex->previousVertex && vertex->returnEdge) {
         stringStack.push(vertex->returnEdge->edge);
         vertex = vertex->previousVertex;
     }
+    auto root = getRoot();
 
     string genome = root->kmer;
 

@@ -17,8 +17,6 @@ int main(int argc, char *argv[]) {
         std::cin.rdbuf(in.rdbuf());
 
         FASTA fasta(argv[1]);
-        //FASTQ fastq("../data/lambda_reads.fastq");
-        //SAM sam("../data/lambda_mapping.sam");
 
         KMerGraph graph(3, 4);
         graph.initialGraph(fasta.getSequence());
@@ -34,6 +32,7 @@ int main(int argc, char *argv[]) {
 
         fasta.setSequence(graph.getOptimalGenome());
         fasta.write(argv[3]);
+
     }
 
 }

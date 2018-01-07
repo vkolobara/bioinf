@@ -59,5 +59,5 @@ cd ../..
 ########################## BUILD OUR SPARC #####################################
 mkdir build
 cd build
-cmake -DCMAKE_BUILD_TYPE=Release ..
+cmake ..
 make
