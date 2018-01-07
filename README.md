@@ -17,14 +17,14 @@
 # INSTRUCTIONS
 ## TODO
 
-## RESULTS
-### After 1 iteration
+# RESULTS
+## After 1 iteration
 | Instance Name | Base Score | Our Score | Time | Memory |
 | ------------- | ---------- | --------- | ---- | ------ |
 | Lambda        | 86.16      | 91.00     | 0.3s | 60MiB  |
 | Ecoli         | 88.57      | 95.71     | 55s  | 7.5GiB |
 
-### After 2 iterations
+## After 2 iterations
 | Instance Name | Base Score | Our Score |
 | ------------- | ---------- | --------- |
 | Lambda        | 86.16      | 91.07     |
