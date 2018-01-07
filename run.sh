@@ -23,7 +23,7 @@ echo "BASE SCORE"
 
 for i in $(eval echo {1..$NUM_ITER})
 do
-	sudo ./build/cgmemtime ./build/bioinf $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	sudo ./libs/cgmemtime/cgmemtime ./build/bioinf $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
 	echo "SCORE at iteration "$i
 	./print_score.sh $OUTPUT_PATH $REFERENCE_PATH
 	./mapping.sh $OUTPUT_PATH $READS_PATH $MAPPING_PATH &>/dev/null
