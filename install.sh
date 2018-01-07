@@ -52,6 +52,23 @@ else
 	echo "---------- Build mummer ----------"
 	make
 fi
+cd ..
+
+
+if [ -d "cgmemtime" ]; then
+	echo "---------- Skip downloading cgmemtime ----------"
+else
+	echo "---------- Download cgmemtime ----------"
+	git clone https://github.com/gsauthof/cgmemtime.git
+fi
+
+cd cgmemtime
+if [ -f "cgmemtime" ]; then
+	echo "---------- Skip building cgmemtime ----------"
+else
+	echo "---------- Build cgmemtime ----------"
+	make
+fi
 
 cd ../..
 ################################################################################
