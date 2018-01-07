@@ -25,9 +25,9 @@
 | Ecoli         | 88.57      | 95.71     | 55s  | 7.5GiB |
 
 ### After 2 iterations
-| Instance Name | Base Score | Our Score | Time | Memory |
-| ------------- | ---------- | --------- | ---- | ------ |
-| Lambda        | 86.16      | 91.07     | 0.3s | 60MiB  |
-| Ecoli         | 88.57      | 95.80     | 55s  | 7.5GiB |
+| Instance Name | Base Score | Our Score |
+| ------------- | ---------- | --------- |
+| Lambda        | 86.16      | 91.07     |
+| Ecoli         | 88.57      | 95.80     |
 
 No further progress could be found.
