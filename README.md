@@ -19,9 +19,10 @@
 
 # RESULTS
 ## Specifications
-OS        : Arch Linux x86_64
-Processor : Intel Core i5-7200U @ 2.50GHz
-RAM       : 8 GiB DDR4 @ 2133MHz
+| OS | PROCESSOR | RAM |
+| -- | --------- | --- |
+| Arch Linux x86_64 | Intel Core i5-7200U @ 2.50GHz | 8 GiB DDR4 @ 2133MHz |
+
 
 ## After 1 iteration
 | Instance Name | Base Score | Our Score | Time | Memory |
