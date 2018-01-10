@@ -1,5 +1,23 @@
 \select@language {croatian}
 \contentsline {chapter}{\numberline {1}Uvod}{1}
-\contentsline {chapter}{\numberline {2}Seminarski rad}{2}
-\contentsline {chapter}{\numberline {3}Zaklju\IeC {\v c}ak}{3}
-\contentsline {chapter}{\numberline {4}Sa\IeC {\v z}etak}{4}
+\contentsline {chapter}{\numberline {2}Sparc algoritam}{2}
+\contentsline {section}{\numberline {2.1}Opis algoritma}{2}
+\contentsline {section}{\numberline {2.2}Primjer}{2}
+\contentsline {chapter}{\numberline {3}Na\IeC {\v s}a implementacija algoritma}{3}
+\contentsline {section}{\numberline {3.1}Kori\IeC {\v s}teni formati}{3}
+\contentsline {subsection}{\numberline {3.1.1}FASTA}{3}
+\contentsline {subsection}{\numberline {3.1.2}FASTQ}{3}
+\contentsline {subsection}{\numberline {3.1.3}SAM}{3}
+\contentsline {section}{\numberline {3.2}Kori\IeC {\v s}tene biblioteke}{3}
+\contentsline {subsection}{\numberline {3.2.1}Graphmap}{3}
+\contentsline {section}{\numberline {3.3}Struktura implementacije}{3}
+\contentsline {section}{\numberline {3.4}Instalacija i pokretanje algoritma}{3}
+\contentsline {chapter}{\numberline {4}Analiza implementacije}{4}
+\contentsline {section}{\numberline {4.1}Alati za analizu}{4}
+\contentsline {subsection}{\numberline {4.1.1}DnaDiff}{4}
+\contentsline {subsection}{\numberline {4.1.2}cgmemtime}{4}
+\contentsline {section}{\numberline {4.2}Testna konfiguracija}{4}
+\contentsline {section}{\numberline {4.3}Analiza utro\IeC {\v s}ka memorije}{4}
+\contentsline {section}{\numberline {4.4}Analiza utro\IeC {\v s}ka vremena}{4}
+\contentsline {chapter}{\numberline {5}Zaklju\IeC {\v c}ak}{5}
+\contentsline {chapter}{\numberline {6}Sa\IeC {\v z}etak}{6}
