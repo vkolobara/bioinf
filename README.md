@@ -32,7 +32,7 @@
 ## After 2 iterations
 | Instance Name | Base Score | Our Score |
 | ------------- | ---------- | --------- |
-| Lambda        | 86.16      | 91.07     |
+| Lambda        | 86.16      | 91.13     |
 | Ecoli         | 88.57      | 95.80     |
 
 No further progress could be found.
