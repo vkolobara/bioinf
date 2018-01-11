@@ -19,15 +19,15 @@
 
 # RESULTS
 ## Specifications
-| PROCESSOR | RAM |
-| --------- | --- |
-| Intel Core i3-6100U @ 3.70GHz | 16 GiB DDR4 @ 2133MHz |
+| OS | PROCESSOR | RAM |
+| -- | --------- | --- |
+| Arch Linux x86_64 | Intel Core i3-6100 @ 3.70GHz | 16 GiB DDR4 @ 2133MHz |
 
 ## After 1 iteration
 | Instance Name | Base Score | Our Score | Time   | Memory |
 | ------------- | ---------- | --------- | ------ | ------ |
-| Lambda        | 86.16      | 91.00     | 0.45s  | 70MiB  |
-| Ecoli         | 88.57      | 95.71     | 1.15s  | 8.5GiB |
+| Lambda        | 86.16      | 91.00     | 0.28s  | 60MiB  |
+| Ecoli         | 88.57      | 95.71     | 63.70s | 8GiB   |
 
 ## After 2 iterations
 | Instance Name | Base Score | Our Score |
