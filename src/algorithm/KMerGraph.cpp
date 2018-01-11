@@ -89,7 +89,7 @@ void KMerGraph::sparc(SAMRow row) {
         offset++;
     }
 
-    auto kmer = row.alignment.substr(unsigned int, k);
+    auto kmer = row.alignment.substr(offset, k);
     auto curr = new Vertex(row.pos, kmer);
 
     set<Vertex *, VertexComp>::iterator it;
