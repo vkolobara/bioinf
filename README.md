@@ -21,19 +21,18 @@
 ## Specifications
 | OS | PROCESSOR | RAM |
 | -- | --------- | --- |
-| Arch Linux x86_64 | Intel Core i5-7200U @ 2.50GHz | 8 GiB DDR4 @ 2133MHz |
-
+| Arch Linux x86_64 | Intel Core i3-6100 @ 3.70GHz | 16 GiB DDR4 @ 2133MHz |
 
 ## After 1 iteration
-| Instance Name | Base Score | Our Score | Time | Memory |
-| ------------- | ---------- | --------- | ---- | ------ |
-| Lambda        | 86.16      | 91.00     | 0.3s | 60MiB  |
-| Ecoli         | 88.57      | 95.71     | 55s  | 7.5GiB |
+| Instance Name | Base Score | Our Score | Time   | Memory |
+| ------------- | ---------- | --------- | ------ | ------ |
+| Lambda        | 86.16      | 91.00     | 0.28s  | 60MiB  |
+| Ecoli         | 88.57      | 95.71     | 63.70s | 8GiB   |
 
 ## After 2 iterations
 | Instance Name | Base Score | Our Score |
 | ------------- | ---------- | --------- |
-| Lambda        | 86.16      | 91.07     |
+| Lambda        | 86.16      | 91.13     |
 | Ecoli         | 88.57      | 95.80     |
 
 No further progress could be found.

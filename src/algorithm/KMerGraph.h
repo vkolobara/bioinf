@@ -16,7 +16,7 @@ using namespace std;
 struct Edge;
 
 struct Vertex {
-    uint position;
+    unsigned int position;
     string kmer;
 
     vector<Edge*> edges;
@@ -26,7 +26,7 @@ struct Vertex {
     Edge* returnEdge;
     Vertex* previousVertex;
 
-    Vertex(uint position, const string &kmer);
+    Vertex(unsigned int position, const string &kmer);
 
     void addEdge(Edge* edge);
     ~Vertex();
@@ -39,14 +39,14 @@ struct VertexComp
 };
 
 struct Edge {
-    uint position;
+    unsigned int position;
     int quality;
     string edge;
 
     Vertex* next;
 
-    Edge(uint position, int quality, const string &edge);
-    Edge(uint position, int quality, const string &edge, Vertex* next);
+    Edge(unsigned int position, int quality, const string &edge);
+    Edge(unsigned int position, int quality, const string &edge, Vertex* next);
 
 };
 
@@ -59,9 +59,6 @@ private:
     Vertex* findBestPath();
 
 public:
-    uint G;
-    uint L;
-
     KMerGraph(short k, short g);
     ~KMerGraph();
 

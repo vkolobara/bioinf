@@ -14,7 +14,6 @@ int main(int argc, char *argv[]) {
         cerr << "3 arguments needed (path to the backbone (.fasta), path to the mapping (.sam), output path .fasta)" << endl;
     } else {
         std::ifstream in(argv[2]);
-        std::cin.rdbuf(in.rdbuf());
 
         FASTA fasta(argv[1]);
 
@@ -23,7 +22,7 @@ int main(int argc, char *argv[]) {
 
         string row;
 
-        while (getline(cin, row)) {
+        while (getline(in, row)) {
             if (row[0] == '@') continue;
             SAMRow samrow(row);
             if (samrow.flag == 4) continue;
@@ -33,6 +32,7 @@ int main(int argc, char *argv[]) {
         fasta.setSequence(graph.getOptimalGenome());
         fasta.write(argv[3]);
 
+        in.close();
     }
 
 }
