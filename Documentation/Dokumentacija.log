@@ -1,4 +1,4 @@
-This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.5)  10 JAN 2018 22:37
+This is pdfTeX, Version 3.14159265-2.6-1.40.16 (TeX Live 2015/Debian) (preloaded format=pdflatex 2017.12.5)  12 JAN 2018 22:32
 entering extended mode
  restricted \write18 enabled.
  %&-line parsing enabled.
@@ -716,44 +716,53 @@ Poglavlje 1.
 Poglavlje 2.
 LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <17.28> not available
 (Font)              Font shape `T1/ptm/b/n' tried instead on input line 28.
-[2
+<images/backbone.png, id=17, 638.385pt x 659.46375pt>
+File: images/backbone.png Graphic file (type png)
 
-]
+<use images/backbone.png>
+Package pdftex.def Info: images/backbone.png used on input line 34.
+(pdftex.def)             Requested size: 383.03394pt x 395.68129pt.
+LaTeX Font Info:    Font shape `T1/ptm/bx/n' in size <10.95> not available
+(Font)              Font shape `T1/ptm/b/n' tried instead on input line 35.
+ [2
+
+] [3 <./images/backbone.png>] [4]
 Poglavlje 3.
-[3
+[5
 
-]
+] [6]
 Poglavlje 4.
-[4
+[7
 
-]
+] [8]
 Poglavlje 5.
 No file Dokumentacija.bbl.
-[5
+[9
 
 ]
 Poglavlje 6.
-[6
+[10
 
 ] (./Dokumentacija.aux) ) 
 Here is how much of TeX's memory you used:
- 5884 strings out of 494374
- 81036 string characters out of 6164954
- 154937 words of memory out of 5000000
- 9075 multiletter control sequences out of 15000+600000
- 49910 words of font info for 69 fonts, out of 8000000 for 9000
+ 5903 strings out of 494374
+ 81308 string characters out of 6164954
+ 154947 words of memory out of 5000000
+ 9087 multiletter control sequences out of 15000+600000
+ 58283 words of font info for 75 fonts, out of 8000000 for 9000
  350 hyphenation exceptions out of 8191
- 43i,6n,40p,309b,241s stack positions out of 5000i,500n,10000p,200000b,80000s
+ 43i,6n,40p,1786b,354s stack positions out of 5000i,500n,10000p,200000b,80000s
 {/usr/share/texlive/texmf-dist/fonts/enc/dvips/base/8r
 .enc}</usr/share/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvb8a.pfb></usr/s
 hare/texlive/texmf-dist/fonts/type1/urw/helvetic/uhvr8a.pfb></usr/share/texlive
 /texmf-dist/fonts/type1/urw/helvetic/uhvro8a.pfb></usr/share/texlive/texmf-dist
 /fonts/type1/urw/times/utmb8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/ur
-w/times/utmr8a.pfb>
-Output written on Dokumentacija.pdf (8 pages, 55322 bytes).
+w/times/utmr8a.pfb></usr/share/texlive/texmf-dist/fonts/type1/urw/times/utmri8a
+.pfb>
+Output written on Dokumentacija.pdf (12 pages, 99727 bytes).
 PDF statistics:
- 52 PDF objects out of 1000 (max. 8388607)
- 36 compressed objects within 1 object stream
+ 71 PDF objects out of 1000 (max. 8388607)
+ 48 compressed objects within 1 object stream
  0 named destinations out of 1000 (max. 500000)
- 1 words of extra memory for PDF output out of 10000 (max. 10000000)
+ 6 words of extra memory for PDF output out of 10000 (max. 10000000)
 
