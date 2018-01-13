@@ -19,6 +19,6 @@
 \contentsline {section}{\numberline {4.2}Testna konfiguracija}{9}
 \contentsline {section}{\numberline {4.3}Analiza kvalitete rje\IeC {\v s}enja}{9}
 \contentsline {section}{\numberline {4.4}Analiza utro\IeC {\v s}ka memorije i vremena}{9}
-\contentsline {chapter}{\numberline {5}Zaklju\IeC {\v c}ak}{10}
-\contentsline {chapter}{\numberline {6}Literatura}{11}
-\contentsline {chapter}{\numberline {7}Sa\IeC {\v z}etak}{12}
+\contentsline {chapter}{\numberline {5}Zaklju\IeC {\v c}ak}{11}
+\contentsline {chapter}{\numberline {6}Literatura}{12}
+\contentsline {chapter}{\numberline {7}Sa\IeC {\v z}etak}{13}

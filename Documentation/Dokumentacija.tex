@@ -82,9 +82,13 @@ GraphMap biblioteka pruža implementaciju mapiranja poravnanja očitanih slijedo
 GraphMap alat nismo koristili direktno u našoj implementaciji, ali smo koristili nastala mapiranja kako bi napravili što efikasniji algoritam.
 
 \section{Struktura implementacije}
-Implementacija je rasčlanjena na nekoliko cjelina: glavni program, definicije formata i njihove parsere te dio u kojemu je definirana struktura k-mer grafa kao i implementacija samog Sparc algoritma.
+Implementacija je rasčlanjena na nekoliko cjelina: glavni program, definicije formata podataka i njihove parsere te dio u kojemu je definirana struktura k-mer grafa kao i implementacija samog Sparc algoritma.
 
-Datoteka \emph{main.cpp} predstavlja glavni program u kojemu se instanciraju potrebne klase za provedbu algoritma kao i svi potrebni parseri koje koristimo 
+Datoteka \emph{main.cpp} predstavlja glavni program u kojemu se instanciraju potrebne klase za provedbu algoritma kao i svi potrebni parseri koje koristimo.
+
+Definicije svih formata datoteka se nalaze u direktoriju \emph{format} gdje je za svaki format podataka napravljena \emph{header} datoteka i njena implementacija.
+
+Implementacija samoga algoritma se nalazi u direktoriju \emph{algorithm} gdje je također napravljena \emph{header} datoteka i njena implementacija. Sparc se nalazi u razredu \emph{KMerGraph} koji predstavlja implementaciju k-mer grafa, dok strukture \emph{Vertex} i \emph{Edge} predstavljaju reprezentacije vrha i brida grafa. Kod instanciranja razreda \emph{KMerGraph} predaju se parametri \emph{k} i \emph{g} kojima se definira struktura grafa, a sama izgradnja \emph{backbone-a} se provodi s metodom \emph{initialGraph} kojoj se predaje \emph{layout} dobiven iz faze Razmještaja. Nakon izgradnje osnovne kontige prolazimo po datoteci SAM formata koja sadrži podatke o obavljenim mapiranjima na osnovnu kontigu. Pomoću dobivenih mapiranja gdje su nam najvažnije stavke originalan slijed \emph{SEQ} prije \emph{CIGAR} operacija, same \emph{CIGAR} operacije i početnu poziciju radimo dodavanje na osnovni kontig bilo povećavanjem težina postojećih bridova ili dodavanjem novih bridova i k-mera na postojeću kontigu. Nakon čitanja cijele SAM datoteke pokreće se traženje najtežeg puta u grafu i rekonstrukcija kontiga koji je definiran najtežim putem u grafu.
 
 \section{Instalacija i pokretanje algoritma}
 Objašnjenje kako se implementacija instalira i pokreće
@@ -121,17 +125,20 @@ Osnovni podaci o računalnoj konfiguraciji koja je korištena za analizu izvođe
 	\centering
 	\begin{tabular}{l|ll}
 		& \multicolumn{1}{l}{lambda} & ecoli \\ 	\hline
-		layout 				& 86.16 	& 88.57 \\ 	\hline
-		naš 1. iteracija  	& 91.00     & 95.71 \\	\hline
-		naš 2. iteracija  	& 91.13     & 95.80 \\	\hline
-		original 1.iteracija   &    -         & -\\ \hline
-		original 2.iteracija   &    -         & -
+		layout 					& 86.16 	& 88.57 \\ 	\hline
+		naš 1. iteracija  		& 91.00     & 95.71 \\	\hline
+		naš 2. iteracija  		& 91.13     & 95.80 \\	\hline
+		original 1.iteracija   	&    - 	  	& 99.14 \\ 
 	\end{tabular}
 	\caption{Usporedba naše implementacije sa slijedom iz faze razmještanja (layout) i referentnim radom (Sparc) nakon prve i druge iteracije algoritma za k=3 i g= 4.}
 	\label{table:kvaliteta}
 \end{table}
 
-Tablica \ref{table:kvaliteta} prikazuje usporedbu naše implementacije i implementacije referentnog rada iz koje je vidljivo...
+Tablica \ref{table:kvaliteta} prikazuje usporedbu naše implementacije i implementacije referentnog rada iz koje je vidljivo da implementacija iz referentnog rada dobiva bolja rješenja od našeg algoritma, iako oba rješenja uspijevaju poboljšati kontigu iz faze Razmještaj.
+
+Tijekom isprobavanja našeg algoritma uvidjeli smo da najbolje rezultate daje upravo za ovakve postavke parametara \emph{k} i \emph{g}. Također smo primijetili da s povećanjem broja iteracija koje se provode da je rješenja kvalitetnije, iako za jako malo poboljšanje i to samo za drugu iteraciju dok provođenje treće iteracije ne donosi značajno poboljšanje.
+
+Referentni rad navodi da su optimalni parametri za taj algoritam \emph{k} u rasponu od 1 do 2 te \emph{g} u rasponu od 1 do 3. 
 
 \section{Analiza utroška memorije i vremena}
 \begin{table}[htb]
@@ -141,7 +148,7 @@ Tablica \ref{table:kvaliteta} prikazuje usporedbu naše implementacije i impleme
 		lambda			& 0.28		& 60 	\\ 	\hline
 		ecoli  			& 63.70     & 8000  \\	\hline
 	\end{tabular}
-	\caption{Analiza utroška vremena i memorije za provedbu algoritma za k=3 i g= 4.}
+	\caption{Analiza utroška vremena i memorije za provedbu algoritma za k=3 i g=4.}
 	\label{table:memorija}
 \end{table}
 
@@ -152,12 +159,14 @@ Tablica \ref{table:memorija} prikazuje potrošnju memorije i vrijeme izvođenja 
 %=====================================================================
 
 \chapter{Zaključak}
-Zaključak.
+Ovim projektom smo se upoznali s nekim osnovama bioinformatike i sastavljanja genoma posebice s paradigmom Premještaj-Razmještaj-Konsenzus, a ponajviše s fazom konsezusa s obzirom da nam je zadatak bio ostvariti implementaciju algoritma Sparc koji je upravo algoritam faze konsenzusa spomenute paradigme. 
+
+Osim same implementacije algoritma napravili smo i analizu dobivenih rezultata na temelju koje smo poboljšavali nastali algoritam. Uspješno smo poboljšali slijedove koje smo dobili na ulazu, iako ne tako dobro kao što to radi referentni algoritam. 
 
 \bibliography{literatura}
 \bibliographystyle{fer}
 
 \chapter{Sažetak}
-Sažetak.
+Algoritam Sparc je jedna od implementacija algoritma faze konsenzusa u Premještaj-Razmještaj-Konsenzus paradigmi sastavljanja genoma. Navedeni algoritam je implementiran u ovom projektu te je provedena analiza i usporedba s originalnom implementacijom koja je navedena u referentnom radu. Naša implementacija uspijeva smanjiti pogrešku, ali ne tako dobro kao referentni algoritam.
 
 \end{document}
