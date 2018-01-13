@@ -1,4 +1,4 @@
-# fer-bioinf
+# Sparc algorithm: consensus phase in Overlap-Layout-Consensus genome assembly
 
 # TASK
 ## (5) Faza konsenzusa u OLC paradigmi sastavljanja genoma – Sparc (MŠ)
@@ -24,15 +24,15 @@
 | Arch Linux x86_64 | Intel Core i3-6100 @ 3.70GHz | 16 GiB DDR4 @ 2133MHz |
 
 ## After 1 iteration
-| Instance Name | Base Score | Our Score | Time   | Memory |
-| ------------- | ---------- | --------- | ------ | ------ |
-| Lambda        | 86.16      | 91.00     | 0.28s  | 60MiB  |
-| Ecoli         | 88.57      | 95.71     | 63.70s | 8GiB   |
+| Instance Name | Base Score | Our Score | Time   | Memory | Improvement | Original implementation Score | Time  | Memory  | Improvement |
+| ------------- | ---------- | --------- | ------ | ------ | ----------  | -------------- | ----  | ------  | ----------- |
+| Lambda        | 86.16      | 90.94     | 0.14s  | 20MiB  | 5.5 %       | 96.83          | 0.27s | 32MiB   | 12.4%       |
+| Ecoli         | 88.58      | 94.80     | 26.8s  | 1.5GiB | 7.02 %      | 99.01          | 36.8s | 3GiB  | 11.77%      |
 
 ## After 2 iterations
-| Instance Name | Base Score | Our Score |
-| ------------- | ---------- | --------- |
-| Lambda        | 86.16      | 91.13     |
-| Ecoli         | 88.57      | 95.80     |
+| Instance Name | Base Score | Our Score | Improvement |
+| ------------- | ---------- | --------- | ----------- |
+| Lambda        | 86.16      | 91.54     | 6.2 %       |
+| Ecoli         | 88.58      | 95.87     | 8.2 %       |
 
 No further progress could be found.
