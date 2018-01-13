@@ -22,8 +22,17 @@ string inverseComplement(string sequence) {
     string ret;
 
     for (int i=sequence.size()-1; i>=0; i--) {
-        auto c = sequence[i];
-        ret.push_back(complement(c));
+        ret.push_back(complement(sequence[i]));
+    }
+
+    return ret;
+}
+
+string inverse(string str) {
+    string ret;
+
+    for (int i=str.size()-1; i>=0; i--) {
+        ret.push_back(str[i]);
     }
 
     return ret;
@@ -38,15 +47,10 @@ void SAM::read(std::string path) {
         if (line.empty()) break;
         if (line[0] == '@') continue;
         SAMRow row(line);
-        if (row.flag == 4) {
+        if (row.flag & (1<<2)) {
             continue;
         }
         row.cigarToAlignment();
-        row.cigar.clear();
-        row.seq.clear();
-        row.qual.clear();
-        row.rname.clear();
-        row.rnext.clear();
         rows.push_back(row);
     }
 
@@ -83,15 +87,16 @@ void SAMRow::read(string line) {
         >> cigar >> rnext >> pnext >> tlen
         >> seq >> qual;
 
-    if (flag == 16) {
-        seq = inverseComplement(seq);
+    if ((flag & (1<<2)) == 0) {
+        this->cigarToAlignment();
     }
 
-    if (flag != 4) {
-        this->cigarToAlignment();
-        cigar.clear();
-        seq.clear();
-    }
+   /* if ((flag & (1<<4)) != 0){
+        seq = inverseComplement(seq);
+        //alignment = inverseComplement(alignment);
+        qual = inverse(qual);
+    }*/
+
 }
 
 string SAMRow::write() {
@@ -99,13 +104,13 @@ string SAMRow::write() {
     oss << qname << "\t" << flag << "\t" << rname << "\t" << pos << "\t"
         << mapq << "\t"
         << cigar << "\t" << rnext << "\t" << pnext << "\t" << tlen << "\t"
-        << inverseComplement(seq) << "\t" << qual;
+        << seq << "\t" << qual;
 
     return oss.str();}
 
 void SAMRow::cigarToAlignment() {
-    for (int i=0, pos=0; i<cigar.size();) {
 
+    for (int i=0, pos=0; i<cigar.size();) {
         string num;
         while(i < cigar.size() && isdigit(cigar[i++])) {
             num.push_back(cigar[i-1]);
@@ -117,10 +122,8 @@ void SAMRow::cigarToAlignment() {
 
         switch(op){
             case 'M':{
-                while (n>0) {
-                    alignment += seq[pos++];
-                    n--;
-                }
+                alignment += seq.substr(pos, n);
+                pos+=n;
                 break;
             }
             case 'D': {
@@ -131,7 +134,8 @@ void SAMRow::cigarToAlignment() {
             break;
             }
             case 'I':{
-                insertions[pos] = seq.substr(pos, n);
+                //insertions[pos] = seq.substr(pos, n);
+                //alignment += seq.substr(pos, n);
                 pos+=n;
                 break;
             }

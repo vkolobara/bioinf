@@ -9,18 +9,19 @@
 #include "KMerGraph.h"
 
 Edge::Edge(unsigned int position, int quality, const string &edge) : position(position), quality(quality), edge(edge) {
-	next = nullptr;
+    next = nullptr;
 }
 
-Edge::Edge(unsigned int position, int quality, const string &edge, Vertex* next) : position(position), quality(quality), edge(edge), next(next) {}
+Edge::Edge(unsigned int position, int quality, const string &edge, Vertex *next) : position(position), quality(quality),
+                                                                                   edge(edge), next(next) {}
 
 void Vertex::addEdge(Edge *edge) {
     edges.push_back(edge);
 }
 
 Vertex::Vertex(unsigned int position, const string &kmer) : position(position), kmer(kmer), weight(-1) {
-	returnEdge = nullptr;
-	previousVertex = nullptr;
+    returnEdge = nullptr;
+    previousVertex = nullptr;
 }
 
 Vertex::~Vertex() {
@@ -33,7 +34,6 @@ Vertex::~Vertex() {
 
     edges.clear();
 }
-
 
 KMerGraph::KMerGraph(short k, short g) : k(k), g(g) {
 }
@@ -65,13 +65,11 @@ void KMerGraph::initialGraph(string backbone) {
 
         auto edgeS = backbone.substr(i, g);
 
-        edge = new Edge(position, 0, edgeS);
+        edge = new Edge(position, 1, edgeS);
 
         v->edges.push_back(edge);
 
-        edge->next=v;
-
-        i += g-k;
+        i += g - k;
     }
 
 }
@@ -82,6 +80,7 @@ Vertex *KMerGraph::getRoot() {
 
 void KMerGraph::sparc(SAMRow row) {
     row.pos--;
+
     unsigned int offset = 0;
 
     while (row.pos % g != 0) {
@@ -89,7 +88,15 @@ void KMerGraph::sparc(SAMRow row) {
         offset++;
     }
 
-    auto kmer = row.alignment.substr(offset, k);
+    string kmer;
+    kmer.reserve(k);
+
+    int kmerIndex = 0;
+
+    for (int i = offset; i < row.alignment.size() && kmerIndex < k; i++) {
+        if (row.alignment[i] != '-') kmer[kmerIndex++] = row.alignment[i];
+    }
+
     auto curr = new Vertex(row.pos, kmer);
 
     set<Vertex *, VertexComp>::iterator it;
@@ -98,22 +105,31 @@ void KMerGraph::sparc(SAMRow row) {
     if (!ret.second) {
         delete curr;
     }
+
     curr = *ret.first;
 
-    for (unsigned int index = k + offset; index + g <= row.alignment.size(); index += g) {
+    for (unsigned int index = offset; index + k + g <= row.alignment.size(); index += g) {
         string edgeStr;
 
-        if (row.insertions.find(index) != row.insertions.end()) {
-            edgeStr = row.insertions[index] + row.alignment.substr(index, g);;
-        } else {
-            edgeStr = row.alignment.substr(index, g);
+        edgeStr = row.alignment.substr(index + k, g);
+
+        string kmerNext;
+        kmerIndex = 0;
+        kmerNext.reserve(k);
+
+        for (int i = index + g; i < row.alignment.size() && kmerIndex < k; i++) {
+            if (row.alignment[i] != '-') kmerNext[kmerIndex++] = row.alignment[i];
         }
 
-        auto kmerNext = edgeStr.substr(g - k, k);
+        int edgeQ = 0;
+        /*for (int i = 0; i < g; i++) {
+            edgeQ += (int) row.qual[index + k + i] - 33;
+        }*/
 
-        short edgeQ = 15;
+        //edgeQ /= edgeStr.size();
+        edgeQ = 1;
 
-        auto nextVertex =new Vertex((unsigned int) curr->position + g, kmerNext);
+        auto nextVertex = new Vertex(curr->position + g, kmerNext);
 
         auto ret = vertices.insert(nextVertex);
         if (!ret.second) {
@@ -146,7 +162,13 @@ KMerGraph::~KMerGraph() {
 }
 
 
-Vertex* KMerGraph::findBestPath() {
+Vertex *KMerGraph::findBestPath() {
+
+    /*for (auto vertex : vertices) {
+        for (auto edge : vertex->edges) {
+            edge->quality -= 1 * max(2, (int) 0.2 * edge->quality);
+        }
+    }*/
 
     auto root = getRoot();
 
