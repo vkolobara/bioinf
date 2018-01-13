@@ -1,4 +1,4 @@
-# fer-bioinf
+# Sparc algorithm: consensus phase in Overlap-Layout-Consensus genome assembly
 
 # TASK
 ## (5) Faza konsenzusa u OLC paradigmi sastavljanja genoma – Sparc (MŠ)
