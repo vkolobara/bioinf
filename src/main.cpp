@@ -10,14 +10,17 @@
 
 int main(int argc, char *argv[]) {
 
-    if (argc != 4) {
-        cerr << "3 arguments needed (path to the backbone (.fasta), path to the mapping (.sam), output path .fasta)" << endl;
+    if (argc != 6) {
+        cerr << "5 arguments needed (k, g, path to the backbone in .fasta format, path to the mapping in .sam format, output path)" << endl;
     } else {
-        std::ifstream in(argv[2]);
+        int k, g;
+        k = stoi(argv[1]);
+        g = stoi(argv[2]);
+        std::ifstream in(argv[4]);
 
-        FASTA fasta(argv[1]);
+        FASTA fasta(argv[3]);
 
-        KMerGraph graph(3, 4);
+        KMerGraph graph(k,g);
         graph.initialGraph(fasta.getSequence());
 
         string row;
@@ -25,12 +28,12 @@ int main(int argc, char *argv[]) {
         while (getline(in, row)) {
             if (row[0] == '@') continue;
             SAMRow samrow(row);
-            if (samrow.flag == 4) continue;
+            if ((samrow.flag & (1<<2)) != 0) continue;
             graph.sparc(samrow);
         }
 
         fasta.setSequence(graph.getOptimalGenome());
-        fasta.write(argv[3]);
+        fasta.write(argv[5]);
 
         in.close();
     }

@@ -23,8 +23,6 @@ struct SAMRow{
     int pnext;
     int tlen;
 
-    map <int, string> insertions;
-
     string seq;
     string qual;
 
