@@ -8,8 +8,66 @@ Implement and evaluate OLC genome assembly, consensus phase algorithm Sparc. Ref
 ### [Test Data](https://www.dropbox.com/s/a40dhhfchojyf0c/consenus_input.zip?dl=0)
 
 ## INSTRUCTIONS
-### TODO
+### Installation
+#### Prerequisites
+* Linux OS
+* CMAKE > 3.5
+* gcc > 4
+* wget
+* unzip
 
+#### Download and install project
+```shell
+git clone https://github.com/vkolobara/bioinf.git
+cd bioinf
+./install.sh
+```
+
+The installation script will install all dependencies in the libs directory and build the project to the build directory.
+
+---
+
+### Running
+#### Executing the program with run.sh
+```shell
+./run.sh 2 lambda
+```
+
+The command above will run 2 iterations of the algorithm (k=3, g=4) on the lambda dataset. Run.sh searches for data files in the data directory with the following naming:
+* layout    -> data/$INSTANCE_layout.fasta
+* reads     -> data/$INSTANCE_reads.fastq
+* reference -> data/$INSTANCE_reference.fasta
+
+Output file will be generated in the same fashion:
+* consensus -> data/$INSTANCE_sparc_output.fasta
+---
+
+run.sh depends on multiple other scripts:
+
+mapping.sh maps the reads onto the layout with graphmap
+```shell
+./mapping.sh layout_path reads_path output_path
+```
+
+print_score.sh displays the percentage of correct mapping with dnadiff
+```shell
+./print_score.sh data/$instance_sparc_output.fasta data/$instance_reference.fasta
+```
+
+---
+
+#### Run the program directly
+```shell
+./build/bioinf k g layout_path mapping_path output_path
+```
+
+The program takes 5 arguments:
+* k            -> size of the k-mer in graph
+* g            -> skip size
+* layout_path  -> path to the layout file (.fasta)
+* mapping_path -> path to the mapping file (.sam) 
+* output_path  -> output path (.fasta)
+---
 ## RESULTS
 ### Specifications
 | OS | PROCESSOR | RAM |
