@@ -8,12 +8,12 @@
 #include <stack>
 #include "KMerGraph.h"
 
-Edge::Edge(unsigned int position, int quality, const string &edge) : position(position), quality(quality), edge(edge), cov(0) {
+Edge::Edge(unsigned int position, int quality, const string &edge) : position(position), quality(quality), edge(edge), cov(1) {
     next = nullptr;
 }
 
 Edge::Edge(unsigned int position, int quality, const string &edge, Vertex *next) : position(position), quality(quality),
-                                                                                   edge(edge), next(next), cov(0) {}
+                                                                                   edge(edge), next(next), cov(1) {}
 
 void Vertex::addEdge(Edge *edge) {
     edges.push_back(edge);
@@ -62,7 +62,7 @@ void KMerGraph::initialGraph(string backbone) {
         }
 
         auto edgeS = backbone.substr(i, g);
-        edge = new Edge(position, 0, edgeS);
+        edge = new Edge(position, 1, edgeS);
         v->edges.push_back(edge);
 
         i += g - k;

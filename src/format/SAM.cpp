@@ -87,15 +87,11 @@ void SAMRow::read(string line) {
         >> cigar >> rnext >> pnext >> tlen
         >> seq >> qual;
 
+
     if ((flag & (1<<2)) == 0) {
         this->cigarToAlignment();
     }
 
-   /* if ((flag & (1<<4)) != 0){
-        seq = inverseComplement(seq);
-        //alignment = inverseComplement(alignment);
-        qual = inverse(qual);
-    }*/
 
 }
 
@@ -110,7 +106,7 @@ string SAMRow::write() {
 
 void SAMRow::cigarToAlignment() {
 
-    for (int i=0, pos=0; i<cigar.size();) {
+    for (unsigned int i=0, pos=0; i<cigar.size();) {
         string num;
         while(i < cigar.size() && isdigit(cigar[i++])) {
             num.push_back(cigar[i-1]);

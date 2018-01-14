@@ -22,8 +22,9 @@ echo "BASE SCORE"
 for i in $(eval echo {1..$NUM_ITER})
 do
 	./mapping.sh $BACKBONE_PATH $READS_PATH $MAPPING_PATH &>/dev/null
-	sudo ./libs/cgmemtime/cgmemtime ./build/bioinf 2 5 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	sudo ./libs/cgmemtime/cgmemtime ./build/bioinf 3 4 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
 	echo "SCORE at iteration "$i
 	./print_score.sh $OUTPUT_PATH $REFERENCE_PATH
 	BACKBONE_PATH=$OUTPUT_PATH
+	rm data/*.gmidx
 done
