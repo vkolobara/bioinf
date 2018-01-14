@@ -3,16 +3,7 @@ This project was done as a part of course Bioinformatics at Faculty of Electrica
 Course description and details can be found at http://www.fer.unizg.hr/predmet/bio.
 
 ## TASK
-### (5) Faza konsenzusa u OLC paradigmi sastavljanja genoma – Sparc (MŠ)
-
-* Ulaz: kontizi u FASTA formatu (85% točnosti kada se usporede s referencom), skup očitanja u FASTQ formatu, skup mapiranja očitanja na kontige (MHAP ili PAF format, trebate generirati sami pomoću minimap-a (https://github.com/lh3/minimap) ili GraphMap-a (https://github.com/isovic/graphmap ili oba zasebno za bolju evaluaciju vaših rješenja).
-* Cilj: Pomoću skupa početnih očitanja povećati točnost kontiga dobivenih iz faze razmještaja.
-* Izlaz: popravljeni kontizi u FASTA formatu.
-* Evaluacija: koristiti alat DnaDiff iz mummer paketa (sudo apt-get install mummer). Za testne skupove javiti se nastavniku.
-
-
-1. Implementirati sparse k-mer graph (Sparc: a sparsity-based consensus algorithm for long erroneous sequencing reads (http://tinyurl.com/zqjcd9q).)
-2. Implementirati konsenzus modul pomoću 1. dijela.
+Implement and evaluate OLC genome assembly, consensus phase algorithm Sparc. Reference white paper can be found here http://tinyurl.com/zqjcd9q. Detailed project instructions can be found in this repository.
 
 ### [Test Data](https://www.dropbox.com/s/a40dhhfchojyf0c/consenus_input.zip?dl=0)
 
