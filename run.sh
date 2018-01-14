@@ -21,8 +21,13 @@ echo "BASE SCORE"
 
 for i in $(eval echo {1..$NUM_ITER})
 do
+	echo "MAPPING "$READS_PATH "on "$BACKBONE_PATH
 	./mapping.sh $BACKBONE_PATH $READS_PATH $MAPPING_PATH &>/dev/null
-	sudo ./libs/cgmemtime/cgmemtime ./build/bioinf 3 4 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	echo "MAPPING DONE"
+	echo "RUNNING SPARC ALGORITHM"
+	#sudo ./libs/cgmemtime/cgmemtime ./build/bioinf 3 4 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	sudo ./build/bioinf 3 4 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	echo "SPARC ALGORITHM DONE"
 	echo "SCORE at iteration "$i
 	./print_score.sh $OUTPUT_PATH $REFERENCE_PATH
 	BACKBONE_PATH=$OUTPUT_PATH
