@@ -44,6 +44,7 @@ struct Edge {
     string edge;
 
     Vertex* next;
+    int cov;
 
     Edge(unsigned int position, int quality, const string &edge);
     Edge(unsigned int position, int quality, const string &edge, Vertex* next);

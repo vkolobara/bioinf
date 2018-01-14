@@ -8,12 +8,12 @@
 #include <stack>
 #include "KMerGraph.h"
 
-Edge::Edge(unsigned int position, int quality, const string &edge) : position(position), quality(quality), edge(edge) {
+Edge::Edge(unsigned int position, int quality, const string &edge) : position(position), quality(quality), edge(edge), cov(0) {
     next = nullptr;
 }
 
 Edge::Edge(unsigned int position, int quality, const string &edge, Vertex *next) : position(position), quality(quality),
-                                                                                   edge(edge), next(next) {}
+                                                                                   edge(edge), next(next), cov(0) {}
 
 void Vertex::addEdge(Edge *edge) {
     edges.push_back(edge);
@@ -50,23 +50,19 @@ void KMerGraph::initialGraph(string backbone) {
         auto kmer = backbone.substr(i, k);
 
         auto v = new Vertex(position, kmer);
+        vertices.insert(v);
 
         if (edge) {
             edge->next = v;
         }
 
-        vertices.insert(v);
-
         i += k;
-
         if (i + g > size) {
             break;
         }
 
         auto edgeS = backbone.substr(i, g);
-
-        edge = new Edge(position, 1, edgeS);
-
+        edge = new Edge(position, 0, edgeS);
         v->edges.push_back(edge);
 
         i += g - k;
@@ -83,6 +79,7 @@ void KMerGraph::sparc(SAMRow row) {
 
     unsigned int offset = 0;
 
+    // Align to the first kmer in backbone
     while (row.pos % g != 0) {
         row.pos++;
         offset++;
@@ -91,9 +88,9 @@ void KMerGraph::sparc(SAMRow row) {
     string kmer;
     kmer.reserve(k);
 
-    int kmerIndex = 0;
+    short kmerIndex = 0;
 
-    for (int i = offset; i < row.alignment.size() && kmerIndex < k; i++) {
+    for (unsigned int i = offset; i < row.alignment.size() && kmerIndex < k; i++) {
         if (row.alignment[i] != '-') kmer[kmerIndex++] = row.alignment[i];
     }
 
@@ -117,17 +114,20 @@ void KMerGraph::sparc(SAMRow row) {
         kmerIndex = 0;
         kmerNext.reserve(k);
 
-        for (int i = index + g; i < row.alignment.size() && kmerIndex < k; i++) {
+        for (unsigned int i = index + g; i < row.alignment.size() && kmerIndex < k; i++) {
             if (row.alignment[i] != '-') kmerNext[kmerIndex++] = row.alignment[i];
         }
 
-        int edgeQ = 0;
-        /*for (int i = 0; i < g; i++) {
-            edgeQ += (int) row.qual[index + k + i] - 33;
-        }*/
+        // If the kmer is not complete, break
+        if (kmerIndex != k) break;
 
-        //edgeQ /= edgeStr.size();
-        edgeQ = 1;
+        // Calculate link multiplicity as the average quality
+        int edgeQ = 0;
+        for (int i = 0; i < g; i++) {
+            edgeQ += (int) row.qual[index + k + i] - 33;
+        }
+        edgeQ /= edgeStr.size();
+
 
         auto nextVertex = new Vertex(curr->position + g, kmerNext);
 
@@ -137,14 +137,17 @@ void KMerGraph::sparc(SAMRow row) {
         }
         nextVertex = *ret.first;
 
+
         bool flag = true;
         for (auto edge : curr->edges) {
             if (edge->edge == edgeStr) {
                 flag = false;
                 edge->quality += edgeQ;
+                edge->cov++;
             }
         }
 
+        // If edge doesn't already exist, create a new one and assign it to the vertex
         if (flag) curr->addEdge(new Edge(curr->position, edgeQ, edgeStr, nextVertex));
 
         curr = nextVertex;
@@ -153,7 +156,6 @@ void KMerGraph::sparc(SAMRow row) {
 
 KMerGraph::~KMerGraph() {
     for (auto vertex : vertices) {
-
         delete vertex;
     }
 
@@ -164,11 +166,12 @@ KMerGraph::~KMerGraph() {
 
 Vertex *KMerGraph::findBestPath() {
 
-    /*for (auto vertex : vertices) {
+    // Do the weight update
+    for (auto vertex : vertices) {
         for (auto edge : vertex->edges) {
-            edge->quality -= 1 * max(2, (int) 0.2 * edge->quality);
+            edge->quality -= max(5, (int) 0.1 * edge->cov);
         }
-    }*/
+    }
 
     auto root = getRoot();
 
