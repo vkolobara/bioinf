@@ -1,13 +1,15 @@
 #!/bin/bash
 
+K=3
+G=4
 NUM_ITER=2
 INSTANCE="lambda"
 
-if [[ $# -eq 0 ]]; then
-	echo "No parameters specified, running 2 iterations on lambda"
-else 
-	NUM_ITER=$1
-	INSTANCE=$2
+if [[ $# -eq 4 ]]; then
+	K=$1
+	G=$2
+	NUM_ITER=$3
+	INSTANCE=$4
 fi
 
 BACKBONE_PATH="data/"$INSTANCE"_layout.fasta"
@@ -25,8 +27,8 @@ do
 	./mapping.sh $BACKBONE_PATH $READS_PATH $MAPPING_PATH &>/dev/null
 	echo "MAPPING DONE"
 	echo "RUNNING SPARC ALGORITHM"
-	#sudo ./libs/cgmemtime/cgmemtime ./build/bioinf 3 4 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
-	sudo ./build/bioinf 3 4 $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	sudo ./libs/cgmemtime/cgmemtime ./build/bioinf $K $G $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
+	#./build/bioinf $K $G $BACKBONE_PATH $MAPPING_PATH $OUTPUT_PATH
 	echo "SPARC ALGORITHM DONE"
 	echo "SCORE at iteration "$i
 	./print_score.sh $OUTPUT_PATH $REFERENCE_PATH

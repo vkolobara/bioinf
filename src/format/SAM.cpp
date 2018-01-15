@@ -113,7 +113,6 @@ void SAMRow::cigarToAlignment() {
         }
         i--;
         char op = cigar[i++];
-
         auto n = stol(num);
 
         switch(op){
@@ -130,7 +129,6 @@ void SAMRow::cigarToAlignment() {
             break;
             }
             case 'I':{
-                //insertions[pos] = seq.substr(pos, n);
                 //alignment += seq.substr(pos, n);
                 pos+=n;
                 break;
