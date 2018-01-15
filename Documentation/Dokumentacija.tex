@@ -38,7 +38,7 @@ Prvi korak algoritma je konstrukcija k-mer grafa na temelju predanog ulaza koji 
 
 Sljedeći korak algoritma je poravnanje dodatnih slijedova čiji se postupak provodi ovisno o tome odgovara li k-mer u novom slijedu k-meru u originalnom slijedu i njegovom bridu gdje se onda samo poveća težina brida za definiranu vrijednost ili ukoliko ne odgovara dodaje se novi brid u graf i kreira se dodatni k-mer i samim time kreira novi put u grafu. Ovaj postupak je jako sličan kreiranju de Bruijn grafa, ali zbog razlikovanja istih k-mera ovisno o njihovoj poziciji, postoji razlika u postupku. Ovaj korak se ponavlja za sve slijedove koje smo dobili sekvenciranjem. 
 
-Završni korak Sparc algoritma je traženje puta u grafu koji ima najveću težinu, što je zahvaljujući činjenici da je konstruirani graf usmjeren i acikličan moguće napraviti s BFS ili DFS algoritmom kojim računamo težinu svakog vrha u grafu. Određivanje konsenzusnog slijeda se provodi tako da krenemo od najtežeg vrha i vraćamo se po najvećim težinama natrag sve do početnog vrha. Kompleksnost algoritma...
+Završni korak Sparc algoritma je traženje puta u grafu koji ima najveću težinu, što je zahvaljujući činjenici da je konstruirani graf usmjeren i acikličan moguće napraviti s BFS ili DFS algoritmom kojim računamo težinu svakog vrha u grafu. Određivanje konsenzusnog slijeda se provodi tako da krenemo od najtežeg vrha i vraćamo se po najvećim težinama natrag sve do početnog vrha.
 
 \section{Primjer}
 \begin{figure}[htb]
@@ -92,7 +92,7 @@ Datoteka \emph{main.cpp} predstavlja glavni program u kojemu se instanciraju pot
 
 Definicije svih formata datoteka se nalaze u direktoriju \emph{format} gdje je za svaki format podataka napravljena \emph{header} datoteka i njena implementacija.
 
-Implementacija samoga algoritma se nalazi u direktoriju \emph{algorithm} gdje je također napravljena \emph{header} datoteka i njena implementacija. Sparc se nalazi u razredu \emph{KMerGraph} koji predstavlja implementaciju k-mer grafa, dok strukture \emph{Vertex} i \emph{Edge} predstavljaju reprezentacije vrha te brida grafa. Kod instanciranja razreda \emph{KMerGraph} predaju se parametri \emph{k} i \emph{g} kojima se definira struktura grafa, a sama izgradnja \emph{backbone-a} se provodi s metodom \emph{initialGraph} kojoj se predaje \emph{layout} dobiven iz faze Razmještaja. Nakon izgradnje početnog grafa prolazimo po datoteci SAM formata koja sadrži podatke o obavljenim mapiranjima poravnanja na osnovni slijed. Pomoću dobivenih mapiranja gdje su nam najvažnije stavke originalni slijed \emph{SEQ} prije \emph{CIGAR} operacija, same \emph{CIGAR} operacije i početnu poziciju radimo dodavanje na početni graf bilo povećavanjem težina postojećih bridova ili dodavanjem novih bridova i k-mera. Težine bridova se povećavaju za vrijednost koja se dobije izračunom prosjeka iz vrijednosti \emph{QUAL} i \emph{g}. Nakon čitanja cijele SAM datoteke pokreće se traženje najtežeg puta u grafu i određivanje konsenzusnog slijeda koji je definiran najtežim putem u grafu.
+Implementacija samoga algoritma se nalazi u direktoriju \emph{algorithm} gdje je također napravljena \emph{header} datoteka i njena implementacija. Sparc se nalazi u razredu \emph{KMerGraph} koji predstavlja implementaciju k-mer grafa, dok strukture \emph{Vertex} i \emph{Edge} predstavljaju reprezentacije vrha te brida grafa. Kod instanciranja razreda \emph{KMerGraph} predaju se parametri \emph{k} i \emph{g} kojima se definira struktura grafa, a sama izgradnja \emph{backbone-a} se provodi s metodom \emph{initialGraph} kojoj se predaje \emph{layout} dobiven iz faze Razmještaja. Nakon izgradnje početnog grafa prolazimo po datoteci SAM formata koja sadrži podatke o obavljenim mapiranjima poravnanja na osnovni slijed. Pomoću dobivenih mapiranja gdje su nam najvažnije stavke originalni slijed \emph{SEQ} prije \emph{CIGAR} operacija, same \emph{CIGAR} operacije i početnu poziciju radimo dodavanje na početni graf bilo povećavanjem težina postojećih bridova ili dodavanjem novih bridova i k-mera. Težine bridova se povećavaju za vrijednost koja se dobije izračunom prosjeka iz vrijednosti \emph{QUAL} i \emph{g}, čime radimo prosječnu vrijednost \emph{QUAL} po broju nukleotida na bridu. Nakon čitanja cijele SAM datoteke pokreće se traženje najtežeg puta u grafu i određivanje konsenzusnog slijeda koji je definiran najtežim putem u grafu.
 
 \section{Instalacija i pokretanje algoritma}
 Cjelokupna implementacija je javno dostupna na poslužitelju GitHub na poveznici \url{https://github.com/vkolobara/bioinf}. Za instalaciju je potrebno ili klonirati postojeći repozitorij ili skinuti \emph{.zip} arhivu te pokrenuti skriptu \emph{install.sh} kako bi se povukle sve potrebne biblioteke i testni podaci te preveli izvorni kodovi u izvršne datoteke. 
@@ -143,8 +143,10 @@ Osnovni podaci o računalnoj konfiguraciji koja je korištena za analizu izvođe
 		 	11			&3	 	&5 		& 89.78 \\ 		\hline
 		 	12			&3	 	&6 		& 89.92 \\ 		\hline
 		 	13			&4	 	&5 		& 89.85 \\ 		\hline
+		 	14			&3		&2		& 90.19 \\		\hline
+		 	15			&4		&2		& 90.11	\\		\hline
 	\end{tabular}
-	\caption{Testiranje algoritma za različite vrijednosti parametara k i g na testnom skupu lambda}
+	\caption{Testiranje algoritma za različite vrijednosti parametara k i g na testnom skupu lambda za jednu iteraciju}
 	\label{table:lambda_test}
 \end{table}
 
@@ -152,19 +154,35 @@ Tablica \ref{table:lambda_test} prikazuje kretanje vrijednosti podudarnosti slij
 
 \begin{table}[htb]
 	\centering
+	\begin{tabular}{l|c}
+		& \multicolumn{1}{l}{vrijednost}\\ 	\hline
+		1. 					& 90.95 	\\ 	\hline
+		2.  				& 91.47 	\\	\hline
+		3.		   			& 91.67		\\ 	\hline
+		4.		   			& 91.78		\\ 	\hline
+		5.		   			& 91.85		\\ 	\hline
+	\end{tabular}
+	\caption{Promjena vrijednosti kvalitete kroz više iteracija za k=3 i g=4 na testnom skupu lambda.}
+	\label{table:iteracije}
+\end{table}
+
+
+Tablica \ref{table:iteracije} prikazuje kako se uz korištenje više iteracija algoritma na način da se izlaz iz iteracije \emph{i} koristi kao ulaz u iteraciji \emph{i+1} moguće poboljšati kvalitetu poklapanja između referentnog slijeda i našeg konsenzusnog slijeda. Također je vidljivo da više iteracije donose sve manja poboljšanja u odnosu na prethodne.
+
+\begin{table}[htb]
+	\centering
 	\begin{tabular}{l|cc}
 		& \multicolumn{1}{l}{lambda} & ecoli \\ 	\hline
 		layout 					& 86.16 	& 88.57 \\ 	\hline
 		naš  					& 91.54     & 95.87 \\	\hline
-		original		   		& 96.83 	& 99.01 \\ 
+		original		   		& 96.83 	& 99.01 \\ 	\hline
 	\end{tabular}
-	\caption{Usporedba naše implementacije sa slijedom iz faze razmještanja (layout) i referentnim radom (Sparc) za k=3 i g= 4.}
+	\caption{Usporedba naše implementacije sa slijedom iz faze razmještanja (layout) i referentnim radom (Sparc) za k=3 i g=4.}
 	\label{table:kvaliteta}
 \end{table}
 
 Tablica \ref{table:kvaliteta} prikazuje usporedbu naše implementacije i implementacije referentnog rada iz koje je vidljivo da implementacija iz referentnog rada dobiva bolja rješenja od našeg algoritma, iako oba rješenja uspijevaju poboljšati slijed iz faze Razmještaj.
-
-Tijekom testiranja našeg algoritma uvidjeli smo da najbolje rezultate dobiamo upravo za ovakve postavke parametara \emph{k} i \emph{g}. Također smo primijetili da s povećanjem broja iteracija koje se provode, rješenje se poboljšava, iako za jako malu vrijednosvivt i to samo za drugu iteraciju dok provođenje treće iteracije ne donosi značajno poboljšanje.
+Tijekom testiranja našeg algoritma primijetili smo da najbolje rezultate dobiamo upravo za ovakve postavke parametara \emph{k} i \emph{g}. 
 
 Referentni rad navodi da su optimalni parametri za taj algoritam \emph{k} u rasponu od 1 do 2 te \emph{g} u rasponu od 1 do 3. 
 
@@ -174,7 +192,7 @@ Referentni rad navodi da su optimalni parametri za taj algoritam \emph{k} u rasp
 	\begin{tabular}{l|cc}
 		& \multicolumn{1}{l}{vrijeme[s]} & memorija[MiB] \\ 	\hline
 		lambda			& 0.21		& 36 	\\ 	\hline
-		ecoli  			& 35     & 4000  \\	\hline
+		ecoli  			& 35     	& 4000  \\	\hline
 	\end{tabular}
 	\caption{Analiza utroška vremena i memorije za provedbu algoritma za k=3 i g=4.}
 	\label{table:memorija}
@@ -198,6 +216,7 @@ Tijekom implementacije smo radili i analizu kvalitete rješenja na dostupnim tes
 \bibliographystyle{fer}
 
 \chapter{Sažetak}
-Algoritam Sparc je jedna od implementacija algoritma faze konsenzusa u Premještaj-Razmještaj-Konsenzus paradigmi sastavljanja genoma. Navedeni algoritam je implementiran u ovom projektu te je provedena analiza i usporedba s originalnom implementacijom koja je navedena u referentnom radu. Naša implementacija uspijeva popraviti početni slijed, ali ne tako dobro kao referentni algoritam.
+Algoritam Sparc je jedna od implementacija algoritma faze konsenzusa u Premještaj-Razmještaj-Konsenzus paradigmi sastavljanja genoma. 
+Navedeni algoritam je implementiran u ovom projektu te je dodatno provedena analiza kvalitete rješenja s gotovim alatima, te je također napravljena usporedna analiza s originalnom implementacijom koja je napravljena u referentnom radu. Naša implementacija uspijeva propraviti početni slijed, ali ne u takvoj mjeri kao što to uspijeva originalna implementacija.
 
 \end{document}
