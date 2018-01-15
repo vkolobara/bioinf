@@ -25,7 +25,7 @@ Danas je jedna od najraširenijih metoda sekvenciranja genoma takozvana \emph{sh
 
 Probleme koji nastaju pri očitavanju genoma rješavamo s algoritmima sastavljanja genoma te tako spajamo kraća očitanja i popravljamo nastale greške kod očitanja. Moderni algoritmi koji se bave ovim problemom temelje se na grafovim, a najkorištenije su dvije metode: \emph{Preklapanje-Razmještaj-Konsenzus} metoda temeljena na grafu preklapanja ili metoda temeljena na \emph{k-mer/de Bruijn} grafovima \cite{sikic2013bioinformatika}.
 
-Cilj ovog rada je upoznavanje, implementacija te analiza implementiranog algoritma faze konsenzusa u OLC paradigmi sastavljanja genoma, naziva Sparc. Postavljeni ciljevi nam određuju i samu strukturu rada pa je tako u drugom poglavlju , opisana ideja algoritma Sparc te prikazan grafički primjer koji prikazuje način na koji algoritam radi. Treće poglavlje opisuje kako smo ostvarili našu implementaciju algoritma te što smo sve koristili za nju. Četvrto poglavlje donosi našu analizu rješenja koje smo implementirali te način na koji smo ju proveli.
+Cilj ovog rada je upoznavanje, implementacija te analiza implementiranog algoritma faze konsenzusa u OLC paradigmi sastavljanja genoma, naziva Sparc. Postavljeni ciljevi nam određuju i samu strukturu rada pa je tako u drugom poglavlju, opisana ideja algoritma Sparc te prikazan grafički primjer koji prikazuje način na koji algoritam radi. Treće poglavlje opisuje kako smo ostvarili našu implementaciju algoritma te što smo sve koristili za nju. Četvrto poglavlje donosi našu analizu rješenja koje smo implementirali te način na koji smo je proveli.
 
 %=========================================================================
 %Početak drugog poglavlja
@@ -34,9 +34,9 @@ Cilj ovog rada je upoznavanje, implementacija te analiza implementiranog algorit
 \chapter{Sparc algoritam}
 Algoritam Sparc je algoritam faze konsenzusa u Preklapanje-Razmještanje-Konzenzus (engl. \emph{Overlap-Layout-Consensus, OLC}) paradigmi sastavljanja očitanja genoma. Temelj algoritma se zasniva na \emph{de Bruijn/k-mer} grafu nad kojim se potom provodi ostatak algoritma \cite{Ye2016}.
 \section{Opis algoritma}
-Prvi korak algoritma je konstrukcija k-mer grafa na temelju predanog ulaza koji sadrži izlaz iz faze Razmještaja, OLC metode. Ovisno o parametrima \emph{k} i \emph{g} kreira se inicijalni k-mer graf, gdje navedeni parametri određuju strukturu grafa, konkretno \emph{k} specificira koliko će nukleotida biti sadržano u pojedinom čvoru grafa, a \emph{g} specificira koliko će se nukleotida nalaziti na svakom bridu. Inicijalni graf je usmjeren sa samo jednim bridom iz svakog vrha osim završnog, koji ga nema. Razlika između ovog grafa i klasičnog de Bruijn grafa je u to tome što su isti k-meri na različitim pozicijama nezavisni jedni od drugih dok su kod de Bruijn grafa smješteni u jednom vrhu pa se ovaj graf smatra \emph {sparse} grafom. 
+Prvi korak algoritma je konstrukcija k-mer grafa na temelju predanog ulaza koji sadrži izlaz iz faze Razmještaja, OLC paradigme. Ovisno o parametrima \emph{k} i \emph{g} kreira se inicijalni k-mer graf, gdje navedeni parametri određuju strukturu grafa, konkretno \emph{k} specificira koliko će nukleotida biti sadržano u pojedinom čvoru grafa, a \emph{g} specificira koliko će se nukleotida nalaziti na svakom bridu. Inicijalni graf je usmjeren sa samo jednim bridom iz svakog vrha osim završnog, koji ga nema. Razlika između ovog grafa i klasičnog de Bruijn grafa je u to tome što su isti k-meri na različitim pozicijama nezavisni jedni od drugih dok su kod de Bruijn grafa smješteni u jednom vrhu pa se ovaj graf smatra \emph {sparse} grafom. 
 
-Sljedeći korak algoritma je poravnanje dodatnih slijedova čiji se postupak provodi ovisno o tome da li k-mer u novom slijedu odgovara k-meru u originalnom slijedu i njegovom bridu gdje se onda samo poveća težina brida za definiranu vrijednost ili ukoliko ne odgovara dodaje se novi brid u graf i kreira se dodatni k-mer i samim time kreira novi put u grafu. Ovaj postupak je jako sličan kreiranju de Bruijn grafa, ali zbog razlikovanja istih k-mera ovisno o njihovoj poziciji, postoji razlika u postupku. Ovaj korak se ponavlja za sve slijedove koje smo dobili sekvenciranjem. 
+Sljedeći korak algoritma je poravnanje dodatnih slijedova čiji se postupak provodi ovisno o tome odgovara li k-mer u novom slijedu k-meru u originalnom slijedu i njegovom bridu gdje se onda samo poveća težina brida za definiranu vrijednost ili ukoliko ne odgovara dodaje se novi brid u graf i kreira se dodatni k-mer i samim time kreira novi put u grafu. Ovaj postupak je jako sličan kreiranju de Bruijn grafa, ali zbog razlikovanja istih k-mera ovisno o njihovoj poziciji, postoji razlika u postupku. Ovaj korak se ponavlja za sve slijedove koje smo dobili sekvenciranjem. 
 
 Završni korak Sparc algoritma je traženje puta u grafu koji ima najveću težinu, što je zahvaljujući činjenici da je konstruirani graf usmjeren i acikličan moguće napraviti s BFS ili DFS algoritmom kojim računamo težinu svakog vrha u grafu. Određivanje konsenzusnog slijeda se provodi tako da krenemo od najtežeg vrha i vraćamo se po najvećim težinama natrag sve do početnog vrha. Kompleksnost algoritma...
 
@@ -48,7 +48,7 @@ Završni korak Sparc algoritma je traženje puta u grafu koji ima najveću teži
 	\label{picture:example}
 \end{figure}
 
-Slika \ref{picture:example} prikazuje cjelokupni postupak algoritma Sparc. Inicijalni slijed služi za kreiranje inicijalnog lanca (engl. \emph{backbone}). Nakon kreiranja \emph{backbone}-a grafa, sljedeći slijed poravnavamo tako da krećemo od početka slijeda i vidimo da je prvi k-mer AC jednak k-meru kontruiranom u grafu, ali je prijelaz na sljedeći k-mer TTT različit od onoga koji se već nalazi u grafu te je stoga potrebno konstruirati novi k-mer TT te novi brid iz k-mera AC prema novom k-meru TT, a taj brid je TTT. Slijedećih \emph{g} nukleotida je GCA koji trebaju završiti u k-meru CA koji već postoji u konstruiranom grafu te je potrebno kreirati brid CGA od k-mera TT prema k-meru CA. Sljedećih \emph{g} nukleotida je CGT, budući da taj brid postoji u konstruiranom grafu potrebno je samo povećati težinu postojećeg brida, isto vrijedi i za sljedećih \emph{g} nukleotida ATC. Postupak je jednak i za slijed 2. Za određivanje najtežeg puta pratimo bridove s najvećim težinama, a u ovdje kontruiranom grafu to je put od k-mera AC bridom TTT potom bridom GCA, CGT i ATC te je stoga rekonstruirani slijed ACTTTGCACGTATC.
+Slika \ref{picture:example} prikazuje cjelokupni postupak algoritma Sparc. Inicijalni slijed služi za kreiranje inicijalnog lanca (engl. \emph{backbone}). Nakon kreiranja \emph{backbone}-a grafa, sljedeći slijed poravnavamo tako da krećemo od početka slijeda i vidimo da je prvi k-mer AC jednak k-meru konstruiranom u grafu, ali je prijelaz na sljedeći k-mer TTT različit od onoga koji se nalazi u grafu te je stoga potrebno konstruirati novi k-mer TT te novi brid iz k-mera AC prema novom k-meru TT, a taj brid je TTT. Sljedećih \emph{g} nukleotida je GCA koji trebaju završiti u k-meru CA koji već postoji u konstruiranom grafu te je potrebno kreirati brid CGA od k-mera TT prema k-meru CA. Sljedećih \emph{g} nukleotida je CGT, budući da taj brid postoji u konstruiranom grafu potrebno je samo povećati težinu postojećeg brida, isto vrijedi i za sljedećih \emph{g} nukleotida ATC. Postupak je jednak i za slijed 2. Za određivanje najtežeg puta pratimo bridove s najvećim težinama, a u ovdje kontruiranom grafu to je put od k-mera AC bridom TTT potom bridom GCA, CGT i ATC te je stoga rekonstruirani slijed ACTTTGCACGTATC.
 
 %=======================================================================
 %Početak trećeg poglavlja
@@ -59,8 +59,8 @@ Za ostvarivanje naše implementacije algoritma faze konzensuza Sparc, koristili 
 \section{Korišteni formati podataka}
 Sve podatke o slijedovima koje koristimo u našem algoritmu se nalaze u predodređenim formatima podataka kako bi se algoritam mogao što jednostavnije koristiti u opće svrhe. 
 \subsection{FASTA}
-Naš algoritam ovaj format koristi kako bi napravio početni slijed (engl. \emph{backbone}) za ulaz te na izlaz stavlja rekonstruirani slijed također u FASTA formatu.
-Ulaz u naš algoritam je u biti izlaz iz faze razmještaja OLC metode \cite[Poglavlje~1.3.1]{sikic2013bioinformatika}.
+Naš algoritam ovaj format koristi kako bi napravio početni lanac (engl. \emph{backbone}), za ulaz te na izlaz stavlja rekonstruirani slijed također u FASTA formatu.
+Ulaz u naš algoritam je u biti izlaz iz faze razmještaja OLC paradigme \cite[Poglavlje~1.3.1]{sikic2013bioinformatika}.
 \subsection{FASTQ}
 Sličan FASTA formatu, ali osim samog slijeda sadrži i oznaku kvalitete svakog očitanja.
 Ovaj format podataka sadrži sekvencirane slijedove koji će poslužiti za rekonstrukciju originalnog slijeda \cite[Poglavlje~1.3.2]{sikic2013bioinformatika} .
@@ -71,7 +71,7 @@ Ovaj format podataka sadrži grupirane informacije o svim očitanjima iz FASTQ f
 Podaci iz SAM formata podataka koje koristimo u našoj implementaciji su:
 \renewcommand{\labelitemi}{$\bullet$}
 \begin{itemize}
-	\item FLAG - skup zastavica koje ovisno o vrijednosti utječu na naš algoritam. Vrijednost zastavice 4 označava da je trenutno mapiranje loše te ga stoga preskačemo, također uzimamo i vrijednost zastavice 16 koja označava da je trenutni slijed u SEQ dijelu inverzno komplementiran. Ostale vrijednosti zastavica zanemarujemo.  
+	\item FLAG - skup zastavica koje ovisno o vrijednosti utječu na naš algoritam. Vrijednost zastavice 4 označava da je trenutno mapiranje loše te ga stoga preskačemo, također uzimamo u obzir i vrijednost zastavice 16 koja označava da je trenutni slijed u SEQ dijelu inverzno komplementiran. Ostale vrijednosti zastavica zanemarujemo.  
 	\item POS - pozicija na osnovnom slijedu na kojoj počinje trenutno mapiranje, pozicija je indeksirana od indeksa 1
 	\item CIGAR - popis operacija koje su napravljene nad očitanjem kako bi se dobilo mapiranje
 	\item SEQ - originalno očitan slijed, prije nego što su obavljene CIGAR operacije
@@ -91,12 +91,12 @@ Datoteka \emph{main.cpp} predstavlja glavni program u kojemu se instanciraju pot
 
 Definicije svih formata datoteka se nalaze u direktoriju \emph{format} gdje je za svaki format podataka napravljena \emph{header} datoteka i njena implementacija.
 
-Implementacija samoga algoritma se nalazi u direktoriju \emph{algorithm} gdje je također napravljena \emph{header} datoteka i njena implementacija. Sparc se nalazi u razredu \emph{KMerGraph} koji predstavlja implementaciju k-mer grafa, dok strukture \emph{Vertex} i \emph{Edge} predstavljaju reprezentacije vrha i brida grafa. Kod instanciranja razreda \emph{KMerGraph} predaju se parametri \emph{k} i \emph{g} kojima se definira struktura grafa, a sama izgradnja \emph{backbone-a} se provodi s metodom \emph{initialGraph} kojoj se predaje \emph{layout} dobiven iz faze Razmještaja. Nakon izgradnje početnog grafa prolazimo po datoteci SAM formata koja sadrži podatke o obavljenim mapiranjima kontiga na osnovni slijed. Pomoću dobivenih mapiranja gdje su nam najvažnije stavke originalan slijed \emph{SEQ} prije \emph{CIGAR} operacija, same \emph{CIGAR} operacije i početnu poziciju radimo dodavanje na početni graf bilo povećavanjem težina postojećih bridova ili dodavanjem novih bridova i k-mera. Nakon čitanja cijele SAM datoteke pokreće se traženje najtežeg puta u grafu i određivanje konsenzusnog slijeda koji je definiran najtežim putem u grafu.
+Implementacija samoga algoritma se nalazi u direktoriju \emph{algorithm} gdje je također napravljena \emph{header} datoteka i njena implementacija. Sparc se nalazi u razredu \emph{KMerGraph} koji predstavlja implementaciju k-mer grafa, dok strukture \emph{Vertex} i \emph{Edge} predstavljaju reprezentacije vrha te brida grafa. Kod instanciranja razreda \emph{KMerGraph} predaju se parametri \emph{k} i \emph{g} kojima se definira struktura grafa, a sama izgradnja \emph{backbone-a} se provodi s metodom \emph{initialGraph} kojoj se predaje \emph{layout} dobiven iz faze Razmještaja. Nakon izgradnje početnog grafa prolazimo po datoteci SAM formata koja sadrži podatke o obavljenim mapiranjima poravnanja na osnovni slijed. Pomoću dobivenih mapiranja gdje su nam najvažnije stavke originalni slijed \emph{SEQ} prije \emph{CIGAR} operacija, same \emph{CIGAR} operacije i početnu poziciju radimo dodavanje na početni graf bilo povećavanjem težina postojećih bridova ili dodavanjem novih bridova i k-mera. Nakon čitanja cijele SAM datoteke pokreće se traženje najtežeg puta u grafu i određivanje konsenzusnog slijeda koji je definiran najtežim putem u grafu.
 
 \section{Instalacija i pokretanje algoritma}
 Cjelokupna implementacija je dostupna na poveznici \url{https://github.com/vkolobara/bioinf}. Za instalaciju je potrebno ili klonirati postojeći repozitorij ili skinuti \emph{.zip} arhivu te pokrenuti skriptu \emph{install.sh} kako bi se povukle sve potrebne biblioteke i testni podaci te preveli izvorni kodovi u izvršne datoteke. 
 
-Pokretanje algoritma se provodi pokretanjem skripte \emph{run} kojoj je moguće predati dodatne parametre koji specificiraju parametre \emph{k} i \emph{g} te broj iteracija i naziv testne datoteke koju želimo pokrenuti.
+Pokretanje algoritma se provodi pokretanjem skripte \emph{run.sh} kojoj je moguće predati dodatne parametre koji specificiraju parametre \emph{k} i \emph{g} te broj iteracija i naziv testne datoteke koju želimo pokrenuti.
 
 %===========================================================================
 % Početak četvrtog poglavlja
@@ -147,7 +147,7 @@ Osnovni podaci o računalnoj konfiguraciji koja je korištena za analizu izvođe
 	\label{table:lambda_test}
 \end{table}
 
-Tablica \ref{table:lambda_test} prikazuje kretanje vrijednosti podudarnosti slijeda dobivenog algoritmom i referentnog slijeda. Moguće je primijetiti da se najbolja rješenja dobivaju za vrijednosti parametara \emph{k} = 3 i \emph{g} = 4, te su stoga te vrijednosti korištene za daljnju analizu na drugim testnim skupovima.
+Tablica \ref{table:lambda_test} prikazuje kretanje vrijednosti podudarnosti slijeda dobivenog algoritmom i referentnog slijeda. Moguće je primijetiti da se najbolja rješenja pronalaze za vrijednosti parametara \emph{k} = 3 i \emph{g} = 4, te su stoga te vrijednosti korištene za daljnju analizu na drugim testnim skupovima.
 
 \begin{table}[htb]
 	\centering
@@ -161,9 +161,9 @@ Tablica \ref{table:lambda_test} prikazuje kretanje vrijednosti podudarnosti slij
 	\label{table:kvaliteta}
 \end{table}
 
-Tablica \ref{table:kvaliteta} prikazuje usporedbu naše implementacije i implementacije referentnog rada iz koje je vidljivo da implementacija iz referentnog rada dobiva bolja rješenja od našeg algoritma, iako oba rješenja uspijevaju poboljšati kontigu iz faze Razmještaj.
+Tablica \ref{table:kvaliteta} prikazuje usporedbu naše implementacije i implementacije referentnog rada iz koje je vidljivo da implementacija iz referentnog rada dobiva bolja rješenja od našeg algoritma, iako oba rješenja uspijevaju poboljšati slijed iz faze Razmještaj.
 
-Tijekom isprobavanja našeg algoritma uvidjeli smo da najbolje rezultate daje upravo za ovakve postavke parametara \emph{k} i \emph{g}. Također smo primijetili da s povećanjem broja iteracija koje se provode, rješenje se poboljšava, iako za jako malu vrijednosvivt i to samo za drugu iteraciju dok provođenje treće iteracije ne donosi značajno poboljšanje.
+Tijekom testiranja našeg algoritma uvidjeli smo da najbolje rezultate dobiamo upravo za ovakve postavke parametara \emph{k} i \emph{g}. Također smo primijetili da s povećanjem broja iteracija koje se provode, rješenje se poboljšava, iako za jako malu vrijednosvivt i to samo za drugu iteraciju dok provođenje treće iteracije ne donosi značajno poboljšanje.
 
 Referentni rad navodi da su optimalni parametri za taj algoritam \emph{k} u rasponu od 1 do 2 te \emph{g} u rasponu od 1 do 3. 
 
@@ -186,7 +186,7 @@ Tablica \ref{table:memorija} prikazuje potrošnju memorije i vrijeme izvođenja 
 %=====================================================================
 
 \chapter{Zaključak}
-Paradigma Premještaj-Razmještaj-Konsenzus pruža jedan način kojim se rješava problem sastavljanja genoma poslije njihovog sekvenciranja i radom na ovom projektu imali smo priliku implementirati jedan od algoritama koji se bave ovim problemom. Implementirani algoritam spada u fazu konsenzusa spomenute paradigme i naziva se Sparc, algoritam je temeljen na k-mer grafovima te zbog toga spada u modernije načine rješavanja sastavljanja genoma.
+Paradigma Premještaj-Razmještaj-Konsenzus pruža jedan način rješavanja problema sastavljanja genoma poslije njihovog sekvenciranja i radom na ovom projektu imali smo priliku implementirati jedan od algoritama koji se bave ovim problemom. Implementirani algoritam spada u fazu konsenzusa spomenute paradigme i naziva se Sparc, algoritam je temeljen na k-mer grafovima te zbog toga spada u modernije načine rješavanja sastavljanja genoma.
 
 Tijekom implementacije smo radili i analizu kvalitete rješenja na dostupnim testnim skupovima i ovisno o rezultatima smo prilagođavali implementaciju. Nakon što smo pronašli zadovoljavajuće parametre radili smo usporedbu s referentnim algoritmom i utvrdili da iako oba algoritma poboljšavaju početnu kontigu, referentni algoritam to radi bolje.
 
