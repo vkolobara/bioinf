@@ -30,10 +30,10 @@ The installation script will install all dependencies in the libs directory and 
 ### Running
 #### Executing the program with run.sh
 ```shell
-./run.sh 2 lambda
+./run.sh 3 4 2 lambda
 ```
 
-The command above will run 2 iterations of the algorithm (k=3, g=4) on the lambda dataset. Run.sh searches for data files in the data directory with the following naming:
+The command above will run 2 iterations of the algorithm with parameters k=3 and g=4 on the lambda dataset. Run.sh searches for data files in the data directory with the following naming:
 * layout    -> data/$INSTANCE_layout.fasta
 * reads     -> data/$INSTANCE_reads.fastq
 * reference -> data/$INSTANCE_reference.fasta
